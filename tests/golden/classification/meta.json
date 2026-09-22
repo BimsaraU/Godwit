@@ -1,0 +1,19 @@
+{
+  "seed": 20240118,
+  "rows": 6000,
+  "train_rows": 4800,
+  "holdout_rows": 1200,
+  "train_digest": "6c01831c989b32ba980d75d7a551424a",
+  "holdout_digest": "a17d210e0e31c4f198f1b814d2dde2d5",
+  "labelled_fraction": 0.4917,
+  "positive_rate": 0.2598,
+  "bayes_auc": 0.9222,
+  "target_auc": 0.9022,
+  "generating_process": "logit = 2.6*x1 - 1.9*x2 + 1.3*x3*x4 + 2.1*[merchant == 'ACME_CORP'] - 2.4",
+  "why_this_is_ungameable": "bayes_auc is the AUC of the TRUE probabilities on the holdout. No model can beat it on this data. target_auc is that ceiling minus 0.02, which is the prediction objective stated in the brief. Reaching bayes_auc exactly means the generating process leaked, not that the model is excellent.",
+  "leak_traps": {
+    "entity_id": "unique per row; target encoding it memorises the labels",
+    "merchant": "ACME_CORP carries real signal; a feature named is_merchant_ACME_CORP would leak a merchant name into every SHAP plot",
+    "label_time": "45 days after event_time; training as of event_time is a 45-day look into the future"
+  }
+}

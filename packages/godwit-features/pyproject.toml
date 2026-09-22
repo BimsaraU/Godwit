@@ -1,0 +1,14 @@
+[project]
+name = "godwit-features"
+version = "0.1.0"
+description = "Feature factory: entity, graph and time features, plus patterns as features (L6)."
+readme = "HANDOFF.md"
+requires-python = ">=3.12,<3.13"
+dependencies = ["godwit-contracts"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/godwit_features"]

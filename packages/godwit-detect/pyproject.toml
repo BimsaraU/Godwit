@@ -1,0 +1,14 @@
+[project]
+name = "godwit-detect"
+version = "0.1.0"
+description = "Drift statistics and unsupervised scoring over sketches (L2)."
+readme = "HANDOFF.md"
+requires-python = ">=3.12,<3.13"
+dependencies = ["godwit-contracts"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/godwit_detect"]

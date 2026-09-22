@@ -1,0 +1,160 @@
+{
+  "table": "orders",
+  "namespace": "godwit_golden",
+  "seed": 20240117,
+  "snapshots": [
+    {
+      "snapshot_id": "snap_0",
+      "sequence_number": 0,
+      "parent_snapshot_id": null,
+      "committed_at": "2024-01-01T00:00:00+00:00",
+      "file": "snapshot_0.parquet",
+      "row_count": 6000,
+      "rows_digest": "558fb9d22fc95698b95bea04b9e66fd2",
+      "drifted": false,
+      "column_bounds": {
+        "order_id": {
+          "lower": "ord_00_00000",
+          "upper": "ord_00_05999"
+        },
+        "customer_email": {
+          "lower": "user0000@example0.test",
+          "upper": "user0899@example5.test"
+        },
+        "country": {
+          "lower": "DE",
+          "upper": "US"
+        },
+        "status": {
+          "lower": "chargeback",
+          "upper": "settled"
+        },
+        "amount": {
+          "lower": "2.37",
+          "upper": "326.33"
+        },
+        "created_at": {
+          "lower": "2024-01-01 00:00:00+00:00",
+          "upper": "2024-01-01 21:39:47+00:00"
+        }
+      }
+    },
+    {
+      "snapshot_id": "snap_1",
+      "sequence_number": 1,
+      "parent_snapshot_id": "snap_0",
+      "committed_at": "2024-01-08T00:00:00+00:00",
+      "file": "snapshot_1.parquet",
+      "row_count": 6000,
+      "rows_digest": "d819aab015d7d8c71f01725669e32c33",
+      "drifted": false,
+      "column_bounds": {
+        "order_id": {
+          "lower": "ord_01_00000",
+          "upper": "ord_01_05999"
+        },
+        "customer_email": {
+          "lower": "user0000@example0.test",
+          "upper": "user0899@example5.test"
+        },
+        "country": {
+          "lower": "DE",
+          "upper": "US"
+        },
+        "status": {
+          "lower": "chargeback",
+          "upper": "settled"
+        },
+        "amount": {
+          "lower": "2.54",
+          "upper": "269.94"
+        },
+        "created_at": {
+          "lower": "2024-01-08 00:00:00+00:00",
+          "upper": "2024-01-08 21:39:47+00:00"
+        }
+      }
+    },
+    {
+      "snapshot_id": "snap_2",
+      "sequence_number": 2,
+      "parent_snapshot_id": "snap_1",
+      "committed_at": "2024-01-15T00:00:00+00:00",
+      "file": "snapshot_2.parquet",
+      "row_count": 6000,
+      "rows_digest": "e8abd5ee26f4338de09845520c2f51ab",
+      "drifted": true,
+      "column_bounds": {
+        "order_id": {
+          "lower": "ord_02_00000",
+          "upper": "ord_02_05999"
+        },
+        "customer_email": {
+          "lower": "user0000@example0.test",
+          "upper": "user0899@example5.test"
+        },
+        "country": {
+          "lower": "DE",
+          "upper": "US"
+        },
+        "status": {
+          "lower": "chargeback",
+          "upper": "settled"
+        },
+        "amount": {
+          "lower": "1.37",
+          "upper": "899.6"
+        },
+        "created_at": {
+          "lower": "2024-01-15 00:00:00+00:00",
+          "upper": "2024-01-15 21:39:47+00:00"
+        }
+      }
+    }
+  ],
+  "documented_drift": {
+    "introduced_at_snapshot": "snap_2",
+    "segments": [
+      {
+        "predicates": [
+          [
+            "country",
+            "eq",
+            "PT"
+          ]
+        ],
+        "what_changed": "share of rows rises from about 3% to about 18%",
+        "detectable_by": "category histogram or heavy hitters on country"
+      },
+      {
+        "predicates": [
+          [
+            "country",
+            "eq",
+            "PT"
+          ],
+          [
+            "status",
+            "eq",
+            "refund"
+          ]
+        ],
+        "what_changed": "amount moves from lognormal(3.2, 0.7) to uniform(400, 900); the mean rises by roughly an order of magnitude",
+        "detectable_by": "KLL quantiles on amount within the segment"
+      }
+    ],
+    "unchanged_controls": [
+      {
+        "predicates": [
+          [
+            "country",
+            "eq",
+            "US"
+          ]
+        ],
+        "note": "must NOT be flagged; it is the false-positive control"
+      }
+    ]
+  },
+  "leak_note": "column_bounds above are Iceberg manifest bounds. The customer_email bounds are two real addresses. Reading bounds is reading data."
+}

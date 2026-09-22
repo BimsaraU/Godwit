@@ -1,0 +1,101 @@
+{
+  "note": "Three envelopes covering the three sensitivity situations: a pure statistic, an opaque summary, and an item-bearing sketch whose payload contains row values. A2 replaces the opaque payloads with real datasketches bytes; the ENVELOPE SHAPE is what downstream agrees on.",
+  "envelopes": [
+    {
+      "kind": "exact_count",
+      "codec": "godwit-exact-v1",
+      "schema_version": 1,
+      "payload": "eyJjb3VudCI6MjAwMH0=",
+      "payload_digest": "sk_af1d83c79c6fb01221245de05d21f307",
+      "sensitivity": "derived_statistic",
+      "provenance": {
+        "acquisition": "computed_statistic",
+        "source_id": "src_golden",
+        "table": "orders",
+        "column": null,
+        "snapshot_id": null,
+        "detail": null,
+        "upstream": null
+      },
+      "population": 2000,
+      "error_bound": {
+        "kind": "exact",
+        "epsilon": null,
+        "delta": null,
+        "confidence": null,
+        "note": "an exact count has no error"
+      },
+      "params": {},
+      "source_id": "src_golden",
+      "snapshot_id": "snap_0",
+      "produced_for": "prb_golden_row_count",
+      "produced_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "kind": "kll",
+      "codec": "datasketches-kll-v1",
+      "schema_version": 1,
+      "payload": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-Pw==",
+      "payload_digest": "sk_59059895958b8a56277edb046df67166",
+      "sensitivity": "derived_statistic",
+      "provenance": {
+        "acquisition": "sketch_summary",
+        "source_id": "src_golden",
+        "table": "orders",
+        "column": "amount",
+        "snapshot_id": null,
+        "detail": null,
+        "upstream": null
+      },
+      "population": 2000,
+      "error_bound": {
+        "kind": "epsilon_delta",
+        "epsilon": 0.01,
+        "delta": 0.01,
+        "confidence": null,
+        "note": "normalised rank error, k=200"
+      },
+      "params": {
+        "k": 200
+      },
+      "source_id": "src_golden",
+      "snapshot_id": "snap_0",
+      "produced_for": "prb_golden_amount_quantiles",
+      "produced_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "kind": "count_min",
+      "codec": "godwit-cm-v1",
+      "schema_version": 1,
+      "payload": "Ly4tLCsqKSgnJiUkIyIhIB8eHRwbGhkYFxYVFBMSERAPDg0MCwoJCAcGBQQDAgEA",
+      "payload_digest": "sk_76b073c11efd6b318f51f122c621291a",
+      "sensitivity": "data_value",
+      "provenance": {
+        "acquisition": "count_min_heavy_hitter",
+        "source_id": "src_golden",
+        "table": "orders",
+        "column": "country",
+        "snapshot_id": null,
+        "detail": null,
+        "upstream": null
+      },
+      "population": 2000,
+      "error_bound": {
+        "kind": "epsilon_delta",
+        "epsilon": 0.001,
+        "delta": 0.01,
+        "confidence": null,
+        "note": "frequency over-estimate, width=2718 depth=5"
+      },
+      "params": {
+        "width": 2718,
+        "depth": 5,
+        "seed": 7
+      },
+      "source_id": "src_golden",
+      "snapshot_id": "snap_0",
+      "produced_for": "prb_golden_country_heavy_hitters",
+      "produced_at": "2024-01-01T00:00:00Z"
+    }
+  ]
+}

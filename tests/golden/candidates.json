@@ -1,0 +1,421 @@
+{
+  "note": "Two candidates matching the documented drift in drift_table. The second has population 34, which is ABOVE the default small-cell threshold of 20. That is deliberate: what makes it unsafe to show is its segment predicates, which quote real column values, not the size of the cell. Small-cell suppression alone would let this one through.",
+  "candidates": [
+    {
+      "candidate_id": "cand_golden_0001",
+      "source_id": "src_golden",
+      "segment": {
+        "predicates": [
+          {
+            "column": {
+              "value": "country",
+              "sensitivity": "schema_name",
+              "provenance": {
+                "acquisition": "catalog_identifier",
+                "source_id": null,
+                "table": null,
+                "column": "country",
+                "snapshot_id": null,
+                "detail": null,
+                "upstream": null
+              },
+              "population": null
+            },
+            "op": "eq",
+            "values": [
+              {
+                "value": "PT",
+                "sensitivity": "data_value",
+                "provenance": {
+                  "acquisition": "segment_predicate",
+                  "source_id": null,
+                  "table": null,
+                  "column": "country",
+                  "snapshot_id": null,
+                  "detail": null,
+                  "upstream": null
+                },
+                "population": null
+              }
+            ]
+          }
+        ],
+        "population": 361
+      },
+      "evidence": [
+        {
+          "kind": "rate_change",
+          "probe_key": "prb_golden_country_heavy_hitters",
+          "snapshot_id": "snap_2",
+          "baseline_snapshot_id": "snap_1",
+          "segment": {
+            "predicates": [
+              {
+                "column": {
+                  "value": "country",
+                  "sensitivity": "schema_name",
+                  "provenance": {
+                    "acquisition": "catalog_identifier",
+                    "source_id": null,
+                    "table": null,
+                    "column": "country",
+                    "snapshot_id": null,
+                    "detail": null,
+                    "upstream": null
+                  },
+                  "population": null
+                },
+                "op": "eq",
+                "values": [
+                  {
+                    "value": "PT",
+                    "sensitivity": "data_value",
+                    "provenance": {
+                      "acquisition": "segment_predicate",
+                      "source_id": null,
+                      "table": null,
+                      "column": "country",
+                      "snapshot_id": null,
+                      "detail": null,
+                      "upstream": null
+                    },
+                    "population": null
+                  }
+                ]
+              }
+            ],
+            "population": 361
+          },
+          "columns": [
+            {
+              "value": "country",
+              "sensitivity": "schema_name",
+              "provenance": {
+                "acquisition": "catalog_identifier",
+                "source_id": null,
+                "table": null,
+                "column": "country",
+                "snapshot_id": null,
+                "detail": null,
+                "upstream": null
+              },
+              "population": null
+            }
+          ],
+          "statistic": {
+            "value": 0.1805,
+            "sensitivity": "derived_statistic",
+            "provenance": {
+              "acquisition": "computed_statistic",
+              "source_id": null,
+              "table": null,
+              "column": null,
+              "snapshot_id": null,
+              "detail": null,
+              "upstream": null
+            },
+            "population": 2000
+          },
+          "baseline": {
+            "value": 0.01,
+            "sensitivity": "derived_statistic",
+            "provenance": {
+              "acquisition": "computed_statistic",
+              "source_id": null,
+              "table": null,
+              "column": null,
+              "snapshot_id": null,
+              "detail": null,
+              "upstream": null
+            },
+            "population": 2000
+          },
+          "effect_size": {
+            "value": 17.05,
+            "sensitivity": "derived_statistic",
+            "provenance": {
+              "acquisition": "computed_statistic",
+              "source_id": null,
+              "table": null,
+              "column": null,
+              "snapshot_id": null,
+              "detail": null,
+              "upstream": null
+            },
+            "population": 2000
+          },
+          "p_value": {
+            "value": 1.2e-40,
+            "sensitivity": "derived_statistic",
+            "provenance": {
+              "acquisition": "computed_statistic",
+              "source_id": null,
+              "table": null,
+              "column": null,
+              "snapshot_id": null,
+              "detail": null,
+              "upstream": null
+            },
+            "population": 2000
+          },
+          "population": 361,
+          "sketch_names": [
+            "country_counts"
+          ]
+        }
+      ],
+      "score": 0.94,
+      "lineage": {
+        "probe_key": "prb_golden_country_heavy_hitters",
+        "snapshot_id": "snap_2",
+        "baseline_snapshot_id": "snap_1",
+        "detector": "category_share_shift",
+        "detector_version": 1,
+        "code_version": "golden-fixture",
+        "seed": 20240117
+      },
+      "created_at": "2024-01-15T01:00:00Z"
+    },
+    {
+      "candidate_id": "cand_golden_0002",
+      "source_id": "src_golden",
+      "segment": {
+        "predicates": [
+          {
+            "column": {
+              "value": "country",
+              "sensitivity": "schema_name",
+              "provenance": {
+                "acquisition": "catalog_identifier",
+                "source_id": null,
+                "table": null,
+                "column": "country",
+                "snapshot_id": null,
+                "detail": null,
+                "upstream": null
+              },
+              "population": null
+            },
+            "op": "eq",
+            "values": [
+              {
+                "value": "PT",
+                "sensitivity": "data_value",
+                "provenance": {
+                  "acquisition": "segment_predicate",
+                  "source_id": null,
+                  "table": null,
+                  "column": "country",
+                  "snapshot_id": null,
+                  "detail": null,
+                  "upstream": null
+                },
+                "population": null
+              }
+            ]
+          },
+          {
+            "column": {
+              "value": "status",
+              "sensitivity": "schema_name",
+              "provenance": {
+                "acquisition": "catalog_identifier",
+                "source_id": null,
+                "table": null,
+                "column": "status",
+                "snapshot_id": null,
+                "detail": null,
+                "upstream": null
+              },
+              "population": null
+            },
+            "op": "eq",
+            "values": [
+              {
+                "value": "refund",
+                "sensitivity": "data_value",
+                "provenance": {
+                  "acquisition": "segment_predicate",
+                  "source_id": null,
+                  "table": null,
+                  "column": "status",
+                  "snapshot_id": null,
+                  "detail": null,
+                  "upstream": null
+                },
+                "population": null
+              }
+            ]
+          }
+        ],
+        "population": 34
+      },
+      "evidence": [
+        {
+          "kind": "distribution_shift",
+          "probe_key": "prb_golden_amount_quantiles",
+          "snapshot_id": "snap_2",
+          "baseline_snapshot_id": "snap_1",
+          "segment": {
+            "predicates": [
+              {
+                "column": {
+                  "value": "country",
+                  "sensitivity": "schema_name",
+                  "provenance": {
+                    "acquisition": "catalog_identifier",
+                    "source_id": null,
+                    "table": null,
+                    "column": "country",
+                    "snapshot_id": null,
+                    "detail": null,
+                    "upstream": null
+                  },
+                  "population": null
+                },
+                "op": "eq",
+                "values": [
+                  {
+                    "value": "PT",
+                    "sensitivity": "data_value",
+                    "provenance": {
+                      "acquisition": "segment_predicate",
+                      "source_id": null,
+                      "table": null,
+                      "column": "country",
+                      "snapshot_id": null,
+                      "detail": null,
+                      "upstream": null
+                    },
+                    "population": null
+                  }
+                ]
+              },
+              {
+                "column": {
+                  "value": "status",
+                  "sensitivity": "schema_name",
+                  "provenance": {
+                    "acquisition": "catalog_identifier",
+                    "source_id": null,
+                    "table": null,
+                    "column": "status",
+                    "snapshot_id": null,
+                    "detail": null,
+                    "upstream": null
+                  },
+                  "population": null
+                },
+                "op": "eq",
+                "values": [
+                  {
+                    "value": "refund",
+                    "sensitivity": "data_value",
+                    "provenance": {
+                      "acquisition": "segment_predicate",
+                      "source_id": null,
+                      "table": null,
+                      "column": "status",
+                      "snapshot_id": null,
+                      "detail": null,
+                      "upstream": null
+                    },
+                    "population": null
+                  }
+                ]
+              }
+            ],
+            "population": 34
+          },
+          "columns": [
+            {
+              "value": "amount",
+              "sensitivity": "schema_name",
+              "provenance": {
+                "acquisition": "catalog_identifier",
+                "source_id": null,
+                "table": null,
+                "column": "amount",
+                "snapshot_id": null,
+                "detail": null,
+                "upstream": null
+              },
+              "population": null
+            }
+          ],
+          "statistic": {
+            "value": 648.2,
+            "sensitivity": "derived_statistic",
+            "provenance": {
+              "acquisition": "computed_statistic",
+              "source_id": null,
+              "table": null,
+              "column": null,
+              "snapshot_id": null,
+              "detail": null,
+              "upstream": null
+            },
+            "population": 34
+          },
+          "baseline": {
+            "value": 31.4,
+            "sensitivity": "derived_statistic",
+            "provenance": {
+              "acquisition": "computed_statistic",
+              "source_id": null,
+              "table": null,
+              "column": null,
+              "snapshot_id": null,
+              "detail": null,
+              "upstream": null
+            },
+            "population": 31
+          },
+          "effect_size": {
+            "value": 4.81,
+            "sensitivity": "derived_statistic",
+            "provenance": {
+              "acquisition": "computed_statistic",
+              "source_id": null,
+              "table": null,
+              "column": null,
+              "snapshot_id": null,
+              "detail": null,
+              "upstream": null
+            },
+            "population": 34
+          },
+          "p_value": {
+            "value": 3.4e-12,
+            "sensitivity": "derived_statistic",
+            "provenance": {
+              "acquisition": "computed_statistic",
+              "source_id": null,
+              "table": null,
+              "column": null,
+              "snapshot_id": null,
+              "detail": null,
+              "upstream": null
+            },
+            "population": 34
+          },
+          "population": 34,
+          "sketch_names": [
+            "amount_kll"
+          ]
+        }
+      ],
+      "score": 0.88,
+      "lineage": {
+        "probe_key": "prb_golden_amount_quantiles",
+        "snapshot_id": "snap_2",
+        "baseline_snapshot_id": "snap_1",
+        "detector": "quantile_shift",
+        "detector_version": 1,
+        "code_version": "golden-fixture",
+        "seed": 20240117
+      },
+      "created_at": "2024-01-15T01:00:00Z"
+    }
+  ]
+}

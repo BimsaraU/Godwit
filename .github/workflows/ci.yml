@@ -1,0 +1,81 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_FROZEN: "1"
+
+jobs:
+  lint:
+    name: ruff + mypy --strict
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: ruff check
+        run: uv run ruff check .
+      - name: ruff format --check
+        run: uv run ruff format --check .
+      - name: mypy --strict
+        run: uv run mypy packages scripts
+
+  test:
+    name: pytest (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - godwit-contracts
+          - godwit-source
+          - godwit-sketch
+          - godwit-store
+          - godwit-replay
+          - godwit-guard
+          - godwit-probe
+          - godwit-detect
+          - godwit-context
+          - godwit-sdk
+          - godwit-orchestrator
+          - godwit-features
+          - godwit-subtractor
+          - godwit-predict
+          - godwit-serve
+          - godwit-llm
+          - godwit-vision
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: pytest
+        run: uv run pytest packages/${{ matrix.package }}
+
+  golden:
+    name: golden fixtures are reproducible
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: regenerate and diff
+        # The generator is seeded and reads no clock. If regenerating changes a JSON
+        # fixture, either the generator changed or someone hand-edited a fixture.
+        # Parquet bytes are not byte-stable across pyarrow versions, so only the JSON
+        # is diffed; the parquet content is pinned by rows_digest in the tests.
+        run: |
+          uv run python scripts/generate_golden.py
+          git diff --exit-code -- 'tests/golden/**/*.json' 'tests/golden/*.json'

@@ -1,0 +1,375 @@
+{
+  "normalisation_spec": "godwit_contracts.segment module docstring",
+  "vectors": [
+    {
+      "note": "empty segment is the whole population",
+      "predicates": [],
+      "canonical": "[]",
+      "segment_key": "seg_7ebb3c7c2a87b1a2f8a7ed729ecb040d"
+    },
+    {
+      "note": "simple equality",
+      "predicates": [
+        {
+          "column": "country",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "PT"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"country\",\"eq\",\"s:PT\"]]",
+      "segment_key": "seg_d5dcaac7a3789a384e3cfbad4dbb4478"
+    },
+    {
+      "note": "column case and surrounding whitespace are normalised away",
+      "predicates": [
+        {
+          "column": "  CoUnTry ",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "PT"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"country\",\"eq\",\"s:PT\"]]",
+      "segment_key": "seg_d5dcaac7a3789a384e3cfbad4dbb4478"
+    },
+    {
+      "note": "value case is NOT normalised: values are data",
+      "predicates": [
+        {
+          "column": "country",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "pt"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"country\",\"eq\",\"s:pt\"]]",
+      "segment_key": "seg_3eaec62f8ef24084b3d1f6062f57a6b1"
+    },
+    {
+      "note": "predicate order does not matter",
+      "predicates": [
+        {
+          "column": "status",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "refund"
+            }
+          ]
+        },
+        {
+          "column": "country",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "PT"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"country\",\"eq\",\"s:PT\"],[\"status\",\"eq\",\"s:refund\"]]",
+      "segment_key": "seg_a388dbe197cec6a57c36f1dca328f60d"
+    },
+    {
+      "note": "same predicates, written in the other order",
+      "predicates": [
+        {
+          "column": "country",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "PT"
+            }
+          ]
+        },
+        {
+          "column": "status",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "refund"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"country\",\"eq\",\"s:PT\"],[\"status\",\"eq\",\"s:refund\"]]",
+      "segment_key": "seg_a388dbe197cec6a57c36f1dca328f60d"
+    },
+    {
+      "note": "duplicate predicates collapse",
+      "predicates": [
+        {
+          "column": "country",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "PT"
+            }
+          ]
+        },
+        {
+          "column": "country",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "PT"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"country\",\"eq\",\"s:PT\"]]",
+      "segment_key": "seg_d5dcaac7a3789a384e3cfbad4dbb4478"
+    },
+    {
+      "note": "int 1 and str '1' are different values",
+      "predicates": [
+        {
+          "column": "code",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "int",
+              "literal": "1"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"code\",\"eq\",\"i:1\"]]",
+      "segment_key": "seg_ed185fd2b856bd27abd38a83da65e997"
+    },
+    {
+      "note": "str '1' again, for contrast",
+      "predicates": [
+        {
+          "column": "code",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "1"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"code\",\"eq\",\"s:1\"]]",
+      "segment_key": "seg_be3ff81e6efa12ede4bca72293c41545"
+    },
+    {
+      "note": "bool is not int",
+      "predicates": [
+        {
+          "column": "flag",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "bool",
+              "literal": "true"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"flag\",\"eq\",\"b:true\"]]",
+      "segment_key": "seg_2d84771d590f1bb3d4e5aa23f5914c55"
+    },
+    {
+      "note": "negative zero float collapses to zero",
+      "predicates": [
+        {
+          "column": "delta",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "float",
+              "literal": "-0.0"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"delta\",\"eq\",\"f:0.0\"]]",
+      "segment_key": "seg_aff29149b734912b54cd2a5f47e742d2"
+    },
+    {
+      "note": "decimal is normalised, never scientific",
+      "predicates": [
+        {
+          "column": "amount",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "Decimal",
+              "literal": "1.2300"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"amount\",\"eq\",\"d:1.23\"]]",
+      "segment_key": "seg_f6833e34dc699a549a472839894f56e1"
+    },
+    {
+      "note": "IN members are sorted and de-duplicated",
+      "predicates": [
+        {
+          "column": "country",
+          "op": "in",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "GB"
+            },
+            {
+              "py_type": "str",
+              "literal": "PT"
+            },
+            {
+              "py_type": "str",
+              "literal": "GB"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"country\",\"in\",\"[s:GB,s:PT]\"]]",
+      "segment_key": "seg_3a5e6618c1da44912a3cfec96901b722"
+    },
+    {
+      "note": "IN escaping: one member containing a comma is not two members",
+      "predicates": [
+        {
+          "column": "label",
+          "op": "in",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "a,b"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"label\",\"in\",\"[s:a\\\\,b]\"]]",
+      "segment_key": "seg_6f2dc44039357f7a0e7cb3c911e23999"
+    },
+    {
+      "note": "two members, for contrast with the escaped case",
+      "predicates": [
+        {
+          "column": "label",
+          "op": "in",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "a"
+            },
+            {
+              "py_type": "str",
+              "literal": "b"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"label\",\"in\",\"[s:a,s:b]\"]]",
+      "segment_key": "seg_8e163bc0eaa54964f8d36f46495dc555"
+    },
+    {
+      "note": "BETWEEN keeps its order",
+      "predicates": [
+        {
+          "column": "amount",
+          "op": "between",
+          "values": [
+            {
+              "py_type": "int",
+              "literal": "10"
+            },
+            {
+              "py_type": "int",
+              "literal": "20"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"amount\",\"between\",\"[i:10,i:20]\"]]",
+      "segment_key": "seg_16b792385efd04c0864fc986c88937f8"
+    },
+    {
+      "note": "IS_NULL takes no values",
+      "predicates": [
+        {
+          "column": "shipped_at",
+          "op": "is_null",
+          "values": []
+        }
+      ],
+      "canonical": "[[\"shipped_at\",\"is_null\",\"\"]]",
+      "segment_key": "seg_55b8e0d74515b9ad83155394952e390e"
+    },
+    {
+      "note": "timestamps are UTC with six fraction digits",
+      "predicates": [
+        {
+          "column": "created_at",
+          "op": "ge",
+          "values": [
+            {
+              "py_type": "datetime",
+              "literal": "2024-03-01T12:30:00+00:00"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"created_at\",\"ge\",\"T:2024-03-01T12:30:00.000000Z\"]]",
+      "segment_key": "seg_8f30840e458218aee765f50bb6877edc"
+    },
+    {
+      "note": "unicode is NFC-normalised: composed and decomposed agree",
+      "predicates": [
+        {
+          "column": "city",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "São Paulo"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"city\",\"eq\",\"s:São Paulo\"]]",
+      "segment_key": "seg_d803d22d1d49d85d2168753669c565ca"
+    },
+    {
+      "note": "the same city, written with a combining tilde",
+      "predicates": [
+        {
+          "column": "city",
+          "op": "eq",
+          "values": [
+            {
+              "py_type": "str",
+              "literal": "São Paulo"
+            }
+          ]
+        }
+      ],
+      "canonical": "[[\"city\",\"eq\",\"s:São Paulo\"]]",
+      "segment_key": "seg_d803d22d1d49d85d2168753669c565ca"
+    }
+  ]
+}

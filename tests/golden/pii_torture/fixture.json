@@ -1,0 +1,166 @@
+{
+  "table": "customers",
+  "namespace": "godwit_golden_pii",
+  "rows_digest": "381110f75e801b9288c2885344f49740",
+  "row_count": 12,
+  "columns": [
+    {
+      "name": "customer_ssn",
+      "pii_class": "direct_identifier",
+      "leak_paths": [
+        "column_name",
+        "manifest_bounds",
+        "most_common_values"
+      ]
+    },
+    {
+      "name": "full_name",
+      "pii_class": "direct_identifier",
+      "leak_paths": [
+        "manifest_bounds",
+        "most_common_values"
+      ]
+    },
+    {
+      "name": "email",
+      "pii_class": "direct_identifier",
+      "leak_paths": [
+        "manifest_bounds"
+      ]
+    },
+    {
+      "name": "patient_hiv_status",
+      "pii_class": "health",
+      "leak_paths": [
+        "column_name",
+        "category_histogram",
+        "most_common_values"
+      ]
+    },
+    {
+      "name": "salary_2024",
+      "pii_class": "financial",
+      "leak_paths": [
+        "column_name",
+        "quantile",
+        "manifest_bounds"
+      ]
+    },
+    {
+      "name": "device_id",
+      "pii_class": "quasi_identifier",
+      "leak_paths": [
+        "count_min_heavy_hitter"
+      ]
+    },
+    {
+      "name": "merchant_name",
+      "pii_class": "quasi_identifier",
+      "leak_paths": [
+        "count_min_heavy_hitter",
+        "derived_feature_name"
+      ]
+    },
+    {
+      "name": "cohort",
+      "pii_class": "quasi_identifier",
+      "leak_paths": [
+        "small_cell"
+      ]
+    },
+    {
+      "name": "notes",
+      "pii_class": "sensitive_attribute",
+      "leak_paths": [
+        "free_text"
+      ]
+    }
+  ],
+  "manifest_bounds": {
+    "customer_ssn": {
+      "lower": "100-40-1000",
+      "upper": "111-51-1077"
+    },
+    "full_name": {
+      "lower": "Aoife Brennan",
+      "upper": "Zainab Farouk"
+    },
+    "email": {
+      "lower": "aoife.brennan@northfield-bank.test",
+      "upper": "zainab.farouk@northfield-bank.test"
+    },
+    "patient_hiv_status": {
+      "lower": "negative",
+      "upper": "unknown"
+    },
+    "salary_2024": {
+      "lower": "41000",
+      "upper": "75100"
+    },
+    "device_id": {
+      "lower": "dev-0000-a4f7723b",
+      "upper": "dev-0011-0837e2ae"
+    },
+    "merchant_name": {
+      "lower": "ACME_CORP",
+      "upper": "vendor_11"
+    },
+    "cohort": {
+      "lower": "general",
+      "upper": "pilot_group_a"
+    },
+    "notes": {
+      "lower": "called Aoife Brennan on the number ending 2000",
+      "upper": "called Zainab Farouk on the number ending 2010"
+    }
+  },
+  "pg_stats_most_common_vals": {
+    "patient_hiv_status": [
+      "negative",
+      "unknown",
+      "positive"
+    ],
+    "merchant_name": [
+      "ACME_CORP"
+    ],
+    "cohort": [
+      "general",
+      "pilot_group_a"
+    ]
+  },
+  "count_min_heavy_hitters": {
+    "merchant_name": [
+      {
+        "item": "ACME_CORP",
+        "estimate": 3
+      }
+    ],
+    "device_id": [
+      {
+        "item": "dev-0000-a4f7723b",
+        "estimate": 1
+      }
+    ]
+  },
+  "small_cells": [
+    {
+      "segment": [
+        [
+          "cohort",
+          "eq",
+          "pilot_group_a"
+        ]
+      ],
+      "population": 3,
+      "why": "n=3 re-identifies without quoting a value"
+    }
+  ],
+  "small_population_quantile": {
+    "column": "salary_2024",
+    "population": 12,
+    "median": 58050.0,
+    "why": "the median salary of a twelve-person team is nearly one person's salary"
+  },
+  "derived_feature_name_trap": "is_merchant_ACME_CORP",
+  "driver_exception_trap": "ERROR: duplicate key value violates unique constraint \"customers_pkey\" DETAIL: Key (customer_ssn)=(100-40-1000) already exists."
+}

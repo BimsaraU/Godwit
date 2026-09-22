@@ -1,0 +1,86 @@
+# Local development stack. Not a production topology.
+#
+# Everything here is the DATA PLANE's dependencies plus the control plane's store,
+# running on one machine because that is convenient, not because they belong together.
+# In a real deployment the Postgres below is control plane and the object store and
+# catalog are inside the customer's perimeter.
+#
+#   make up     start everything and wait for health
+#   make seed   regenerate tests/golden and load it into the catalog
+#   make down   stop and remove volumes
+
+name: godwit
+
+services:
+  postgres:
+    # pgvector for the pattern store's embedding-based dedup (L5).
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: godwit
+      POSTGRES_PASSWORD: godwit_local_only
+      POSTGRES_DB: godwit
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U godwit -d godwit"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: minio/minio:RELEASE.2024-09-22T00-33-43Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: godwit
+      MINIO_ROOT_PASSWORD: godwit_local_only
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio-init:
+    image: minio/mc:RELEASE.2024-09-16T17-43-14Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 godwit godwit_local_only &&
+      mc mb --ignore-existing local/godwit-warehouse &&
+      mc mb --ignore-existing local/godwit-artifacts &&
+      echo 'buckets ready'
+      "
+
+  iceberg-rest:
+    image: tabulario/iceberg-rest:1.6.0
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+    ports:
+      - "8181:8181"
+    environment:
+      CATALOG_WAREHOUSE: s3://godwit-warehouse/
+      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
+      CATALOG_S3_ENDPOINT: http://minio:9000
+      CATALOG_S3_PATH__STYLE__ACCESS: "true"
+      AWS_ACCESS_KEY_ID: godwit
+      AWS_SECRET_ACCESS_KEY: godwit_local_only
+      AWS_REGION: us-east-1
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:8181/v1/config || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  postgres_data:
+  minio_data:

@@ -1,0 +1,14 @@
+[project]
+name = "godwit-llm"
+version = "0.1.0"
+description = "Provider-agnostic LLM adapter. Accepts SafePayload and nothing else (L9)."
+readme = "HANDOFF.md"
+requires-python = ">=3.12,<3.13"
+dependencies = ["godwit-contracts"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/godwit_llm"]

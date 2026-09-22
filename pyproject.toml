@@ -1,0 +1,104 @@
+# Virtual workspace root. It is deliberately NOT a distributable package:
+# there is no [project] table, so `uv sync` resolves the members below and
+# nothing installs a package called "godwit".
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+godwit-contracts = { workspace = true }
+godwit-source = { workspace = true }
+godwit-sketch = { workspace = true }
+godwit-store = { workspace = true }
+godwit-replay = { workspace = true }
+godwit-guard = { workspace = true }
+godwit-probe = { workspace = true }
+godwit-detect = { workspace = true }
+godwit-context = { workspace = true }
+godwit-sdk = { workspace = true }
+godwit-orchestrator = { workspace = true }
+godwit-features = { workspace = true }
+godwit-subtractor = { workspace = true }
+godwit-predict = { workspace = true }
+godwit-serve = { workspace = true }
+godwit-llm = { workspace = true }
+godwit-vision = { workspace = true }
+
+[dependency-groups]
+dev = [
+  "pytest>=8.2",
+  "pytest-cov>=5.0",
+  "hypothesis>=6.100",
+  "mypy>=1.10",
+  "ruff>=0.5",
+  "pyarrow>=16.0",
+  # pyarrow needs an IANA database to read tz-aware timestamps; Windows has none.
+  "tzdata>=2024.1",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["packages"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W", "F", "I", "UP", "B", "SIM", "N", "ANN", "RUF",
+  "C4", "PTH", "TID", "ARG", "RET", "S", "DTZ", "ISC", "PIE", "PL", "TRY",
+]
+ignore = [
+  # Formatter-owned rules; ruff-format handles these.
+  "ISC001",
+  # Exception messages inline are clearer than a pile of one-use constants.
+  "TRY003", "EM101", "EM102",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests assert (S101), shell out to mypy with a fixed argv (S603), use magic numbers
+# (PLR2004), and deliberately exercise things the lints discourage: late imports to
+# prove a signature (PLC0415), str.format to prove repr safety (UP032), naive datetimes
+# to prove they are refused (DTZ001).
+"**/tests/**" = [
+  "S101", "S603", "PLR2004", "ANN401", "ARG001", "SLF001", "PLC0415", "UP032", "DTZ001",
+]
+# `Sensitivity.TOKEN` is a taint class, not a credential. S105 flags the name.
+"**/godwit_contracts/taint.py" = ["S105"]
+"scripts/**" = ["S101", "PLR2004", "S311", "T201"]
+# The golden-fixture conftest hands tests parsed JSON; `Any` is the honest type.
+"conftest.py" = ["ANN401"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+[tool.ruff.lint.pylint]
+max-args = 10
+max-returns = 12
+max-branches = 15
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+disallow_any_explicit = false
+plugins = ["pydantic.mypy"]
+mypy_path = "packages/godwit-contracts/src:packages/godwit-source/src:packages/godwit-sketch/src:packages/godwit-store/src:packages/godwit-replay/src:packages/godwit-guard/src:packages/godwit-probe/src:packages/godwit-detect/src:packages/godwit-context/src:packages/godwit-sdk/src:packages/godwit-orchestrator/src:packages/godwit-features/src:packages/godwit-subtractor/src:packages/godwit-predict/src:packages/godwit-serve/src:packages/godwit-llm/src:packages/godwit-vision/src"
+# Tests are not type-checked: seventeen packages each ship a tests/ directory and the
+# file basenames collide (every package has a test_smoke.py), which mypy cannot map to
+# distinct modules without __init__.py in each. Source and scripts are checked strictly.
+exclude = ['(^|/)(\.venv|build|dist|node_modules|tests)/']
+
+[[tool.mypy.overrides]]
+module = ["pyarrow.*"]
+ignore_missing_imports = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["packages", "tests"]
+# importlib mode: seventeen packages each have a tests/ directory and file basenames
+# collide (every package ships a test_smoke.py). Prepend mode cannot import those.
+addopts = "-q --strict-markers --strict-config --import-mode=importlib"
+filterwarnings = ["error"]
