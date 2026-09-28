@@ -1,10 +1,20 @@
 [project]
 name = "godwit-replay"
 version = "0.1.0"
-description = "Deterministic replay of a probe/detector run from lineage (invariant 7)."
+description = "Replay harness, scoring, expert baselines and the kill criterion."
 readme = "HANDOFF.md"
 requires-python = ">=3.12,<3.13"
-dependencies = ["godwit-contracts"]
+dependencies = [
+  "godwit-contracts",
+  "godwit-source",
+  "numpy>=1.26",
+  "pyarrow>=16.0",
+  "pyiceberg[sql-sqlite]>=0.7",
+  "lightgbm>=4.3",
+]
+
+[project.scripts]
+godwit-replay = "godwit_replay.cli:main"
 
 [build-system]
 requires = ["hatchling"]

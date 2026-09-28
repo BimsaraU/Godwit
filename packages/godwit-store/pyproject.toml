@@ -4,7 +4,13 @@ version = "0.1.0"
 description = "Postgres + pgvector persistence for patterns, runs and audit (L5)."
 readme = "HANDOFF.md"
 requires-python = ">=3.12,<3.13"
-dependencies = ["godwit-contracts"]
+dependencies = [
+    "godwit-contracts",
+    "sqlalchemy>=2.0.30",
+    "alembic>=1.13",
+    "pgvector>=0.3.0",
+    "psycopg[binary]>=3.2",
+]
 
 [build-system]
 requires = ["hatchling"]
