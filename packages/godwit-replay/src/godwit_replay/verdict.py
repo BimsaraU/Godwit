@@ -30,6 +30,7 @@ the segment up and a reviewer outside it cannot.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping, Sequence
 from enum import StrEnum
 from typing import Final
@@ -63,11 +64,17 @@ __all__ = [
     "ReviewMark",
     "assert_passed",
     "build_report",
+    "group_candidates",
     "render_markdown",
     "render_review_template",
 ]
 
 _SECONDS_PER_DAY: Final[float] = 86400.0
+_FINGERPRINT_PLACES: Final[int] = 9
+_LOCKSTEP_MIN: Final[int] = 2
+_PERSISTENT_PERIODS: Final[int] = 3
+_EXTREME_LOG_RATIO: Final[float] = math.log(10.0)
+_MAX_EXP: Final[float] = 700.0
 
 TOP_N: Final[int] = 20
 """How many patterns a reviewer sees. Twenty, because an hour is the budget."""
@@ -152,6 +159,24 @@ class PatternRow(GodwitModel):
         "audit catches it on type, before anything is rendered.",
     )
     evidence: tuple[EvidenceRow, ...] = ()
+    label: str = Field(
+        default="",
+        description="What the pattern is, in one sentence, generated from its statistics and "
+        "column names. Deterministic; no LLM.",
+    )
+    triage: tuple[str, ...] = Field(
+        default=(),
+        description="The system's own reading of the pattern -- co-missing block, extreme "
+        "value, persistent, one-off. A hypothesis for the reviewer, never a mark.",
+    )
+    recurrences: NonNegInt = Field(
+        default=1, description="How many replay periods surfaced this segment."
+    )
+    merged: NonNegInt = Field(
+        default=1,
+        description="Candidates folded into this row because they measured the same rows "
+        "moving in lockstep (identical statistics, same snapshot, same detector).",
+    )
     mark: ReviewMark = ReviewMark.UNMARKED
 
 
@@ -216,14 +241,128 @@ class ReplayReport(GodwitModel):
         return self.verdict is ReplayVerdict.PASSED
 
 
+def _fingerprint(candidate: Candidate) -> tuple[object, ...]:
+    """What a candidate measured, without which column it measured it on."""
+    return tuple(
+        (
+            item.kind.value,
+            round(item.statistic.reveal(), _FINGERPRINT_PLACES),
+            None if item.baseline is None else round(item.baseline.reveal(), _FINGERPRINT_PLACES),
+            item.population,
+        )
+        for item in candidate.evidence
+    )
+
+
+def group_candidates(ranked: Sequence[Candidate]) -> tuple[tuple[Candidate, ...], ...]:
+    """Fold one phenomenon into one row, and drop repeats. Order follows ``ranked``.
+
+    * Candidates from the same detector at the same snapshot with identical statistics
+      measured the same rows moving together -- five columns that go null on the same
+      trips are one finding, not five.
+    * A segment already shown in a stronger group is not shown again. A column that
+      re-fires every month is one pattern with a recurrence count, not twelve rows.
+    """
+    buckets: dict[tuple[object, ...], list[Candidate]] = {}
+    for candidate in ranked:
+        key = (
+            candidate.lineage.detector,
+            str(candidate.lineage.snapshot_id),
+            _fingerprint(candidate),
+        )
+        buckets.setdefault(key, []).append(candidate)
+    seen: set[str] = set()
+    groups: list[tuple[Candidate, ...]] = []
+    for members in buckets.values():
+        fresh: list[Candidate] = []
+        for candidate in members:
+            segment = str(candidate.segment.key)
+            if segment not in seen:
+                seen.add(segment)
+                fresh.append(candidate)
+        if fresh:
+            groups.append(tuple(fresh))
+    return tuple(groups)
+
+
+def _column_names(group: Sequence[Candidate]) -> tuple[str, ...]:
+    names: list[str] = []
+    for candidate in group:
+        for item in candidate.evidence:
+            for column in item.columns:
+                if column.reveal() not in names:
+                    names.append(column.reveal())
+    return tuple(names)
+
+
+def _label(group: Sequence[Candidate]) -> str:
+    """One sentence, from the statistics. Column names only; never a predicate value."""
+    lead = group[0]
+    names = ", ".join(f"`{name}`" for name in _column_names(group)) or "the table"
+    detector = lead.lineage.detector
+    if not lead.evidence:
+        return f"{detector} fired on {names}"
+    first = lead.evidence[0]
+    now = first.statistic.reveal()
+    before = None if first.baseline is None else first.baseline.reveal()
+    if detector.endswith("null_rate_shift") and before is not None:
+        return f"null rate of new rows in {names} moved from {before:.1%} to {now:.1%}"
+    if detector.endswith("ndv_ratio_shift") and before is not None:
+        return f"distinct-to-row ratio of {names} moved from {before:.3g} to {now:.3g}"
+    if detector.endswith("bounds_drift"):
+        # The evidence does not say whether the range or the midpoint moved, so the
+        # label does not claim which: it reports the size against the column's norm.
+        largest = max(abs(item.statistic.reveal()) for item in lead.evidence)
+        typical = before if before is not None else 0.0
+        return (
+            f"min/max of {names} jumped out of line with its history "
+            f"(log-scale change {largest:.3g} against a typical {abs(typical):.3g})"
+        )
+    if detector.endswith("row_volume_anomaly"):
+        return f"row volume changed by a factor of {math.exp(min(now, _MAX_EXP)):.3g} in one period"
+    if detector.endswith("file_layout_anomaly"):
+        return "the table's file layout (file count or size) changed unlike before"
+    if detector.endswith("schema_change"):
+        return "the table's schema changed (columns added, removed or retyped)"
+    return f"{detector} fired on {names}"
+
+
+def _triage(group: Sequence[Candidate], recurrences: int) -> tuple[str, ...]:
+    """The system's own reading. Stated as hypotheses; the reviewer decides."""
+    lead = group[0]
+    detector = lead.lineage.detector
+    tags: list[str] = []
+    if len(group) >= _LOCKSTEP_MIN and detector.endswith("null_rate_shift"):
+        tags.append(
+            f"co-missing block: {len(group)} columns go null on the same rows -- one upstream "
+            "source, vendor or record type stopped sending them"
+        )
+    if detector.endswith("bounds_drift") and any(
+        abs(item.statistic.reveal()) >= _EXTREME_LOG_RATIO for item in lead.evidence
+    ):
+        tags.append(
+            "extreme value: a bound moved over tenfold (log scale) in one period -- most often a "
+            "single outlier or a unit/entry error; confirm before treating it as behaviour"
+        )
+    if recurrences >= _PERSISTENT_PERIODS:
+        tags.append(
+            f"persistent: re-surfaced in {recurrences} periods -- a regime change, not a blip"
+        )
+    elif recurrences == 1:
+        tags.append("one-off: surfaced in a single period")
+    return tuple(tags)
+
+
 def _pattern_row(
-    candidate: Candidate,
+    group: Sequence[Candidate],
     *,
     rank: int,
     first_seen: Mapping[str, Instant],
     period_of: Mapping[str, str],
+    recurrences: int,
     reveal: bool,
 ) -> PatternRow:
+    candidate = group[0]
     key = str(candidate.segment.key)
     return PatternRow(
         rank=rank,
@@ -234,7 +373,13 @@ def _pattern_row(
         score=candidate.score,
         first_seen_period=period_of.get(key, "?"),
         first_seen_at=first_seen.get(key, candidate.created_at),
-        columns=tuple(column for item in candidate.evidence for column in item.columns)[:8],
+        columns=tuple(
+            column for member in group for item in member.evidence for column in item.columns
+        )[:8],
+        label=_label(group),
+        triage=_triage(group, recurrences),
+        recurrences=recurrences,
+        merged=len(group),
         predicate_summary=tuple(
             f"{predicate.column.redacted()} {predicate.op.value} "
             + (
@@ -293,17 +438,25 @@ def build_report(
                 continue
             period_of.setdefault(str(candidate.segment.key), outcome.period_key)
 
+    periods_of: dict[str, set[int]] = {}
+    for outcome in run.steps:
+        for candidate_id in outcome.candidate_ids:
+            found = by_id.get(candidate_id)
+            if found is not None:
+                periods_of.setdefault(str(found.segment.key), set()).add(outcome.step_index)
+
     reveal = run.config.reveal_values_in_output
     marked = marks or {}
     rows = tuple(
         _pattern_row(
-            candidate,
+            group,
             rank=index + 1,
             first_seen=first_seen,
             period_of=period_of,
+            recurrences=len(periods_of.get(str(group[0].segment.key), ())) or 1,
             reveal=reveal,
-        ).model_copy(update={"mark": marked.get(str(candidate.segment.key), ReviewMark.UNMARKED)})
-        for index, candidate in enumerate(run.ranked()[:top_n])
+        ).model_copy(update={"mark": marked.get(str(group[0].segment.key), ReviewMark.UNMARKED)})
+        for index, group in enumerate(group_candidates(run.ranked())[:top_n])
     )
 
     reviewed = tuple(row for row in rows if row.mark is not ReviewMark.UNMARKED)
@@ -446,6 +599,11 @@ def _render_row(row: PatternRow) -> list[str]:
     ]
     if row.columns:
         lines.append("- columns: " + ", ".join(f"`{column.reveal()}`" for column in row.columns))
+    if row.label:
+        lines.append(f"- **what**: {row.label}")
+    lines.extend(f"- auto-triage: {tag}" for tag in row.triage)
+    if row.merged > 1:
+        lines.append(f"- merged: {row.merged} lockstep candidates folded into this row")
     if row.predicate_summary:
         lines.append("- predicates: " + "; ".join(row.predicate_summary))
     lines.extend(f"- {item.line()}" for item in row.evidence)

@@ -83,6 +83,7 @@ __all__ = [
     "DeltaVerdict",
     "DetectorConfig",
     "bounds_drift",
+    "cohens_h",
     "evaluate_deltas",
     "file_layout_anomaly",
     "ndv_ratio_shift",
@@ -92,7 +93,7 @@ __all__ = [
     "schema_change",
 ]
 
-DETECTOR_VERSION: Final[Version] = 1
+DETECTOR_VERSION: Final[Version] = 2
 """Bumped whenever any detector here could produce different output for identical input."""
 
 METADATA_PROBE_BUDGET: Final[CostBudget] = CostBudget(
@@ -118,6 +119,9 @@ _FILE_LAYOUT_ANOMALY: Final[str] = "metadata.file_layout_anomaly"
 
 _MIN_SNAPSHOTS: Final[int] = 3
 """Three snapshots give two transitions: one to measure and one to judge it against."""
+
+_P_FLOOR: Final[float] = 1e-300
+"""Below this a double-precision p-value is no longer trustworthy; see the asymptote."""
 
 _RELATIVE_FLOOR: Final[float] = 2.0
 """How many times the largest previous change the latest one must be, when there is not
@@ -153,6 +157,13 @@ class DetectorConfig(GodwitModel):
     against the largest snapshot rather than the latest, so that a table collapsing to
     nothing is still reported -- see :func:`_usable`."""
 
+    min_effect_h: float = Field(default=0.1, ge=0.0)
+    """Cohen's h a proportion must move by, on top of being significant.
+
+    On a forty-million-row table a 0.4-point move in a null rate has p = 0 and means
+    nothing. Significance says the change is not noise; effect size says it is worth a
+    human's time. 0.1 is between Cohen's "trivial" and "small"."""
+
     min_history: NonNegInt = 3
     """Snapshots required before any detector will speak.
 
@@ -185,9 +196,33 @@ class DeltaVerdict:
     @property
     def score(self) -> float:
         """Detector-local ranking score. Not comparable across detectors until L5."""
+        if self.z_score is not None:
+            return _neg_log10_two_sided_p(self.z_score)
         if self.p_value is not None:
             return -math.log10(max(self.p_value, 1e-300))
         return abs(self.latest)
+
+
+def _neg_log10_two_sided_p(z: float) -> float:
+    """``-log10(two_sided_p(z))`` without underflow.
+
+    Past |z| ~ 37 the p-value underflows to zero and every strong finding used to tie at
+    the 1e-300 floor, which made ranking meaningless. Beyond that point the Mills-ratio
+    asymptote ``p ~ 2 phi(z) / |z|`` is accurate to many digits and keeps growing with |z|.
+    """
+    size = abs(z)
+    if math.isinf(size):
+        return math.inf
+    p_value = two_sided_p(size)
+    if p_value > _P_FLOOR:
+        return -math.log10(p_value)
+    log_p = math.log(2.0) - size * size / 2.0 - math.log(size * math.sqrt(2.0 * math.pi))
+    return -log_p / math.log(10.0)
+
+
+def cohens_h(first: float, second: float) -> float:
+    """Effect size between two proportions: ``2 asin sqrt(p1) - 2 asin sqrt(p2)``."""
+    return 2.0 * math.asin(math.sqrt(first)) - 2.0 * math.asin(math.sqrt(second))
 
 
 def evaluate_deltas(
@@ -666,7 +701,15 @@ def _proportion_detector(
     seed: int,
     config: DetectorConfig,
 ) -> tuple[Candidate, ...]:
-    """Shared body for the two detectors that compare a count against a denominator."""
+    """Shared body for the two detectors that compare a count against a denominator.
+
+    Null counts (nulls over rows) on an append-only table are compared per
+    period: the rows added in the latest period against the rows added in the one
+    before. A whole-table comparison dilutes a real change in this period's data by
+    every period before it -- a null rate that doubled for new rows moves the cumulative
+    rate by a fraction of a point. Distinct counts are not additive and keep the
+    snapshot view, as does any table that was rewritten rather than appended to.
+    """
     if not _usable(history, config):
         return ()
     current, baseline = history[-1], history[-2]
@@ -678,6 +721,10 @@ def _proportion_detector(
         counts = _proportion_counts(column, previous, counts_of)
         if counts is None:
             continue
+        if kind is EvidenceKind.NULL_RATE_SHIFT:  # the additive one
+            earlier = history[-3].column(column.ref.column.reveal())
+            older = None if earlier is None else _proportion_counts(previous, earlier, counts_of)
+            counts = _increments(counts, older) or counts
         successes_a, total_a, successes_b, total_b = counts
         z_score = two_proportion_z(
             successes_a=successes_a,
@@ -689,6 +736,8 @@ def _proportion_detector(
             continue
         p_value = two_sided_p(z_score)
         if p_value > config.max_p_value:
+            continue
+        if abs(cohens_h(successes_a / total_a, successes_b / total_b)) < config.min_effect_h:
             continue
         verdict = DeltaVerdict(
             latest=successes_a / total_a,
@@ -751,6 +800,28 @@ def _proportion_counts(
     if not (0 <= successes_a <= total_a and 0 <= successes_b <= total_b):
         return None
     return successes_a, total_a, successes_b, total_b
+
+
+def _increments(
+    latest: tuple[int, int, int, int], older: tuple[int, int, int, int] | None
+) -> tuple[int, int, int, int] | None:
+    """Per-period counts from three cumulative snapshots, or None if not append-only.
+
+    ``latest`` is (current, previous) and ``older`` is (previous, earlier). Append-only
+    means both periods added rows and no count shrank; anything else -- a rewrite, a
+    delete, a compaction that dropped rows -- falls back to the snapshot view.
+    """
+    if older is None:
+        return None
+    nulls_now, rows_now, nulls_prev, rows_prev = latest
+    _, _, nulls_old, rows_old = older
+    added_rows, prior_rows = rows_now - rows_prev, rows_prev - rows_old
+    added_nulls, prior_nulls = nulls_now - nulls_prev, nulls_prev - nulls_old
+    if min(added_rows, prior_rows) <= 0 or min(added_nulls, prior_nulls) < 0:
+        return None
+    if added_nulls > added_rows or prior_nulls > prior_rows:
+        return None
+    return added_nulls, added_rows, prior_nulls, prior_rows
 
 
 def row_volume_anomaly(

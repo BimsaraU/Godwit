@@ -22,6 +22,7 @@ from godwit_contracts.source import ColumnRef, LogicalType, SnapshotRef, SourceK
 from godwit_contracts.taint import Acquisition, data_value, derived_statistic, schema_name
 from godwit_source.detectors import (
     DEFAULT_CONFIG,
+    DeltaVerdict,
     DetectorConfig,
     bounds_drift,
     evaluate_deltas,
@@ -266,6 +267,49 @@ def test_null_rate_shift_needs_a_count_to_have_been_recorded() -> None:
     """A writer that records no null counts is not a table with no nulls."""
     history = [metadata(index, [column("merchant")]) for index in range(3)]
     assert run(null_rate_shift, history) == ()
+
+
+def test_null_rate_shift_compares_periods_not_cumulative_totals() -> None:
+    """Append-only tables: ten periods at 5% nulls, then one at 12%.
+
+    The whole-table rate moves from 5.0% to 5.6% -- trivially small, and on its own it
+    would stay under the effect floor. The rows added in the latest period moved from 5%
+    to 12%, which is the actual finding.
+    """
+    per_period, periods = 10_000, 11
+    history = []
+    nulls = 0
+    for index in range(periods):
+        nulls += 1_200 if index == periods - 1 else 500
+        rows = per_period * (index + 1)
+        history.append(
+            metadata(index, [column("fee", row_count=rows, nulls=nulls)], row_count=rows)
+        )
+    found = run(null_rate_shift, history)
+    assert len(found) == 1
+    evidence = found[0].evidence[0]
+    assert evidence.statistic.reveal() == pytest.approx(0.12)
+    assert evidence.baseline is not None
+    assert evidence.baseline.reveal() == pytest.approx(0.05)
+    assert evidence.population == per_period
+
+
+def test_null_rate_shift_ignores_a_significant_but_trivial_move() -> None:
+    """Ten million rows make a 0.4-point move 'significant'. It is still not a finding."""
+    rows = 10_000_000
+    history = [
+        metadata(0, [column("fee", row_count=rows, nulls=500_000)], row_count=rows),
+        metadata(1, [column("fee", row_count=rows, nulls=500_000)], row_count=rows),
+        metadata(2, [column("fee", row_count=rows, nulls=540_000)], row_count=rows),
+    ]
+    assert run(null_rate_shift, history) == ()
+
+
+def test_scores_keep_ranking_past_the_underflow_point() -> None:
+    """p-values underflow near |z| = 37; scores must not all tie at the floor."""
+    weaker = DeltaVerdict(latest=0.1, baseline=0.0, z_score=50.0, p_value=0.0, fired=True)
+    stronger = DeltaVerdict(latest=0.1, baseline=0.0, z_score=60.0, p_value=0.0, fired=True)
+    assert stronger.score > weaker.score > 300.0
 
 
 def test_ndv_ratio_shift_finds_a_cardinality_collapse() -> None:
