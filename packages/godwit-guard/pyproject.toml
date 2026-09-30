@@ -4,7 +4,17 @@ version = "0.1.0"
 description = "Classification, redaction, tokenisation and the egress gate (GATE)."
 readme = "HANDOFF.md"
 requires-python = ">=3.12,<3.13"
-dependencies = ["godwit-contracts"]
+dependencies = [
+  "godwit-contracts",
+  "godwit-store",
+  # Backstop scanning only. Never the control; see docs/specs/pii-threat-model.md.
+  "presidio-analyzer>=2.2.355",
+  "en-core-web-sm",
+]
+
+[tool.uv.sources]
+# spaCy models are not on PyPI. Pinned by URL so the lockfile covers the NER backstop.
+en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }
 
 [build-system]
 requires = ["hatchling"]

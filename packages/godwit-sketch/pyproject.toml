@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "Mergeable monoid sketches: Theta, KLL, HLL, Count-Min (L1)."
 readme = "HANDOFF.md"
 requires-python = ">=3.12,<3.13"
-dependencies = ["godwit-contracts"]
+dependencies = [
+    "datasketches>=5.2.0",
+    "godwit-contracts",
+]
 
 [build-system]
 requires = ["hatchling"]

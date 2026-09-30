@@ -1,0 +1,138 @@
+{
+  "built_as_of": "2024-06-01T00:00:00Z",
+  "caveats": [
+    "this fixture ships a real label_time 45 days after event_time, so no delay was invented",
+    "meta.json records bayes_auc: a score above it means the generating process leaked into the features, not that the model is good",
+    "event-time span of the evaluation half: 2024-01-24..2024-01-30"
+  ],
+  "chosen": {
+    "learning_rate": 0.05,
+    "min_data_in_leaf": 20,
+    "num_boost_round": 300,
+    "num_leaves": 31
+  },
+  "code_version": "godwit-replay/0.1.0",
+  "cost_spent": {
+    "bytes_scanned": 0,
+    "llm_tokens": 0,
+    "train_seconds": 5.664,
+    "usd": "0",
+    "wall_seconds": 0.0
+  },
+  "data_digest": "dat_c7a2ede5da59d05552eb0f6d14d7b3da",
+  "dataset": "golden-classification",
+  "dropped_columns": [
+    "entity_id",
+    "event_time",
+    "label_time",
+    "label_observed",
+    "label"
+  ],
+  "encoding": "numeric passthrough plus frequency encoding; no target encoding",
+  "eval_rows": 1200,
+  "feature_names": [
+    "merchant",
+    "x1",
+    "x2",
+    "x3",
+    "x4"
+  ],
+  "grid": [
+    {
+      "learning_rate": 0.05,
+      "min_data_in_leaf": 20,
+      "num_boost_round": 300,
+      "num_leaves": 31
+    },
+    {
+      "learning_rate": 0.05,
+      "min_data_in_leaf": 50,
+      "num_boost_round": 400,
+      "num_leaves": 63
+    },
+    {
+      "learning_rate": 0.03,
+      "min_data_in_leaf": 100,
+      "num_boost_round": 600,
+      "num_leaves": 127
+    },
+    {
+      "learning_rate": 0.1,
+      "min_data_in_leaf": 20,
+      "num_boost_round": 200,
+      "num_leaves": 31
+    }
+  ],
+  "library": "lightgbm",
+  "library_version": "4.7.0",
+  "mask": "temporal",
+  "metrics": {
+    "auc": 0.891092542255333,
+    "pr_auc": 0.7517869485844114
+  },
+  "positive_rate": 0.2475,
+  "seed": 20240117,
+  "split": {
+    "embargo": "PT0S",
+    "group_key": null,
+    "kind": "time_ordered",
+    "n_folds": null,
+    "seed": 20240117,
+    "test_end": null,
+    "time_column": {
+      "population": null,
+      "provenance": {
+        "acquisition": "catalog_identifier",
+        "column": "event_time",
+        "detail": null,
+        "snapshot_id": null,
+        "source_id": null,
+        "table": null,
+        "upstream": null
+      },
+      "sensitivity": "schema_name",
+      "value": "event_time"
+    },
+    "train_end": "2024-01-24T07:53:00Z",
+    "valid_end": "2024-01-24T07:53:00.000001Z"
+  },
+  "split_record": {
+    "cut_off": "2024-01-24T08:00:00Z",
+    "dataset": "golden-classification",
+    "digest": "dat_c7a2ede5da59d05552eb0f6d14d7b3da",
+    "eval_rows": 1200,
+    "hidden_fraction": 0.5083333333333333,
+    "hidden_rows": 2440,
+    "labelled_rows": 3560,
+    "mask": "temporal",
+    "rows": 6000,
+    "seed": 20240117,
+    "spec": {
+      "embargo": "PT0S",
+      "group_key": null,
+      "kind": "time_ordered",
+      "n_folds": null,
+      "seed": 20240117,
+      "test_end": null,
+      "time_column": {
+        "population": null,
+        "provenance": {
+          "acquisition": "catalog_identifier",
+          "column": "event_time",
+          "detail": null,
+          "snapshot_id": null,
+          "source_id": null,
+          "table": null,
+          "upstream": null
+        },
+        "sensitivity": "schema_name",
+        "value": "event_time"
+      },
+      "train_end": "2024-01-24T07:53:00Z",
+      "valid_end": "2024-01-24T07:53:00.000001Z"
+    }
+  },
+  "title": "Golden half-labelled classification fixture",
+  "train_rows": 2360,
+  "validation_auc": 0.9210344386122136
+}

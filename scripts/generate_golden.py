@@ -233,6 +233,7 @@ def generate_drift_table() -> dict[str, Any]:
 # 2. half-labelled classification fixture with a known ceiling
 # ----------------------------------------------------------------------------------
 
+_FEATURE_PLACES = 6
 _MERCHANTS = [f"merchant_{index:02d}" for index in range(48)] + ["ACME_CORP", "RARE_LTD"]
 
 
@@ -241,10 +242,13 @@ def generate_classification() -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     true_probability: list[float] = []
     for index in range(6000):
-        x1 = rng.gauss(0.0, 1.0)
-        x2 = rng.gauss(0.0, 1.0)
-        x3 = rng.gauss(0.0, 1.0)
-        x4 = rng.uniform(-1.0, 1.0)
+        # gauss() goes through the platform libm (log, cos), which differs in the last bit
+        # between glibc and the Windows CRT. Rounding makes the stored values, and so
+        # train_digest/holdout_digest, identical on every OS.
+        x1 = round(rng.gauss(0.0, 1.0), _FEATURE_PLACES)
+        x2 = round(rng.gauss(0.0, 1.0), _FEATURE_PLACES)
+        x3 = round(rng.gauss(0.0, 1.0), _FEATURE_PLACES)
+        x4 = round(rng.uniform(-1.0, 1.0), _FEATURE_PLACES)
         merchant = _MERCHANTS[min(int(abs(rng.gauss(0, 14))), len(_MERCHANTS) - 1)]
         merchant_effect = 2.1 if merchant == "ACME_CORP" else 0.0
         logit = 2.6 * x1 - 1.9 * x2 + 1.3 * x3 * x4 + merchant_effect - 2.4

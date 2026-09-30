@@ -4,7 +4,12 @@ version = "0.1.0"
 description = "Source adapters and the semantic catalog (L-1, L0)."
 readme = "HANDOFF.md"
 requires-python = ">=3.12,<3.13"
-dependencies = ["godwit-contracts"]
+dependencies = [
+  "godwit-contracts",
+  "pyiceberg[sql-sqlite]>=0.7",
+  "pyarrow>=16.0",
+  "sqlalchemy>=2.0",
+]
 
 [build-system]
 requires = ["hatchling"]

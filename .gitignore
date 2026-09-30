@@ -19,3 +19,9 @@ apps/vision-board/dist/
 !.env.example
 infra/.data/
 .DS_Store
+
+# Local replay datasets and run outputs (public benchmarks, hundreds of MB).
+data/
+
+# Kaggle API credentials (never commit).
+.kaggle/
