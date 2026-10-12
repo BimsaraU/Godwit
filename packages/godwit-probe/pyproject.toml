@@ -4,7 +4,19 @@ version = "0.1.0"
 description = "Probe workers executing a ProbeSpec into a SketchBundle (L1)."
 readme = "HANDOFF.md"
 requires-python = ">=3.12,<3.13"
-dependencies = ["godwit-contracts"]
+dependencies = [
+  "godwit-contracts",
+  "godwit-source",
+  "godwit-sketch",
+  "godwit-guard",
+  "pyarrow>=16.0",
+  "duckdb>=1.1",
+  "sqlalchemy>=2.0",
+  "numpy>=1.26",
+  "opentelemetry-api>=1.25",
+  # The in-memory exporters the leak tests read spans and metric labels back from.
+  "opentelemetry-sdk>=1.25",
+]
 
 [build-system]
 requires = ["hatchling"]

@@ -1,0 +1,575 @@
+{
+ "surface": {
+  "Acquisition": {
+   "enum": [
+    "catalog_identifier",
+    "category_histogram",
+    "computed_statistic",
+    "count_min_heavy_hitter",
+    "derived_feature_name",
+    "driver_exception",
+    "frequent_items",
+    "gate_tokenisation",
+    "iceberg_manifest_bounds",
+    "llm_output",
+    "model_explanation",
+    "pg_stats_mcv",
+    "quantile",
+    "segment_predicate",
+    "sketch_summary",
+    "user_supplied"
+   ]
+  },
+  "BaseSketch": {
+   "class": "()",
+   "members": {
+    "SENSITIVITY": "attribute: NoneType",
+    "decode": "classmethod(envelope: 'SketchEnvelope') -> 'Self'",
+    "encode": "method(self) -> 'bytes'",
+    "error_bound": "method(self) -> 'ErrorBound'",
+    "fingerprint": "property",
+    "from_items": "classmethod(items: 'Sequence[SketchItem]', params: 'Mapping[str, ParamValue]') -> 'Self'",
+    "identity": "classmethod(params: 'Mapping[str, ParamValue]') -> 'Self'",
+    "kind": "property",
+    "merge": "method(self, other: 'Self') -> 'Self'",
+    "params": "property",
+    "population": "property",
+    "provenance": "method(self, context: 'SketchContext | None' = None) -> 'Provenance'",
+    "require_mergeable": "method(self, other: 'Self') -> 'None'",
+    "sensitivity": "property",
+    "serialise": "method(self, context: 'SketchContext | None' = None) -> 'SketchEnvelope'"
+   }
+  },
+  "Capabilities": {
+   "class": "(network: 'tuple[str, ...]' = (), filesystem: 'tuple[str, ...]' = (), subprocess: 'bool' = False) -> None",
+   "members": {
+    "declared": "property",
+    "describe": "method(self) -> 'tuple[str, ...]'",
+    "filesystem": "attribute: member_descriptor",
+    "network": "attribute: member_descriptor",
+    "subprocess": "attribute: member_descriptor"
+   }
+  },
+  "CapabilityViolationError": {
+   "class": "<no signature>",
+   "members": {
+    "add_note": "method<no signature>",
+    "args": "attribute: getset_descriptor",
+    "with_traceback": "method<no signature>"
+   }
+  },
+  "ColumnRole": {
+   "enum": [
+    "amount",
+    "category",
+    "device",
+    "entity_id",
+    "event_time",
+    "free_text",
+    "geo",
+    "join_key",
+    "label",
+    "measure",
+    "unknown"
+   ]
+  },
+  "ColumnStats": {
+   "class": "(null_fraction: 'float | None' = None, distinct: 'int | None' = None, minimum: 'ScalarValue' = None, maximum: 'ScalarValue' = None, common_values: 'tuple[ScalarValue, ...]' = ()) -> None",
+   "members": {
+    "common_values": "attribute: member_descriptor",
+    "distinct": "attribute: member_descriptor",
+    "maximum": "attribute: member_descriptor",
+    "minimum": "attribute: member_descriptor",
+    "null_fraction": "attribute: member_descriptor"
+   }
+  },
+  "ContextBase": {
+   "class": "()",
+   "members": {
+    "SDK_METHODS": "attribute: tuple",
+    "events": "method(self, *, start: '_dt.datetime', end: '_dt.datetime') -> 'tuple[ContextEvent, ...]'",
+    "fetch": "method(self, *, start: '_dt.datetime', end: '_dt.datetime') -> 'Iterable[ContextRecord]'",
+    "for_conformance": "classmethod(records: 'Sequence[ContextRecord]') -> 'Self'",
+    "log": "property",
+    "name": "property",
+    "plugin_info": "classmethod() -> 'PluginInfo'",
+    "runner": "property"
+   }
+  },
+  "ContextRecord": {
+   "class": "(key: 'str', context_type: 'ContextType', kind: 'str', start: '_dt.datetime', end: '_dt.datetime | None' = None, label: 'str | None' = None, source_ids: 'tuple[str, ...]' = (), columns: 'tuple[str, ...]' = (), permanent: 'bool' = False) -> None",
+   "members": {
+    "columns": "attribute: member_descriptor",
+    "context_type": "attribute: member_descriptor",
+    "end": "attribute: member_descriptor",
+    "key": "attribute: member_descriptor",
+    "kind": "attribute: member_descriptor",
+    "label": "attribute: member_descriptor",
+    "permanent": "attribute: member_descriptor",
+    "source_ids": "attribute: member_descriptor",
+    "start": "attribute: member_descriptor"
+   }
+  },
+  "ContextType": {
+   "enum": [
+    "annotation",
+    "business_calendar",
+    "campaign",
+    "data_quality",
+    "deploy",
+    "holiday",
+    "market"
+   ]
+  },
+  "DEFAULT_REQUIREMENT": {
+   "value": "'~=0.1.0'"
+  },
+  "DetectorBase": {
+   "class": "()",
+   "members": {
+    "ALPHA": "attribute: float",
+    "MIN_SUPPORT": "attribute: int",
+    "ROLES": "attribute: frozenset",
+    "SDK_METHODS": "attribute: tuple",
+    "as_contract": "method(self, *, spec: 'ProbeSpec', code_version: 'str') -> 'Detector'",
+    "examine": "method(self, current: 'BaseSketch', reference: 'Sequence[BaseSketch]') -> 'Sequence[HypothesisTest]'",
+    "log": "property",
+    "plugin_info": "classmethod() -> 'PluginInfo'",
+    "run": "method(self, series: 'SketchSeries', *, policy: 'BaselinePolicy') -> 'DetectionResult'",
+    "runner": "property",
+    "settings": "method(self) -> 'Settings'"
+   }
+  },
+  "Direction": {
+   "enum": [
+    "appeared",
+    "changed",
+    "down",
+    "up",
+    "vanished"
+   ]
+  },
+  "DiscoveryReport": {
+   "class": "(loaded: 'tuple[PluginInfo, ...]' = (), failed: 'tuple[tuple[str, str], ...]' = ()) -> None",
+   "members": {
+    "failed": "attribute: member_descriptor",
+    "loaded": "attribute: member_descriptor"
+   }
+  },
+  "ENTRY_POINT_GROUP": {
+   "value": "'godwit.plugins'"
+  },
+  "EVENT_TIME": {
+   "value": "'event_time'"
+  },
+  "ErrorBound": {
+   "class": "(*, kind: Literal['relative', 'absolute', 'epsilon_delta', 'exact'], epsilon: Optional[Annotated[float, FieldInfo(annotation=NoneType, required=True, metadata=[Ge(ge=0.0)])]] = None, delta: Optional[Annotated[float, FieldInfo(annotation=NoneType, required=True, metadata=[Ge(ge=0.0), Le(le=1.0)])]] = None, confidence: Optional[Annotated[float, FieldInfo(annotation=NoneType, required=True, metadata=[Ge(ge=0.0), Le(le=1.0)])]] = None, note: str = '') -> None",
+   "members": {
+    "construct": "classmethod(_fields_set: 'set[str] | None' = None, **values: 'Any') -> 'Self'",
+    "copy": "method(self, *, include: 'AbstractSetIntStr | MappingIntStrAny | None' = None, exclude: 'AbstractSetIntStr | MappingIntStrAny | None' = None, update: 'Dict[str, Any] | None' = None, deep: 'bool' = False) -> 'Self'",
+    "dict": "method(self, *, include: 'IncEx | None' = None, exclude: 'IncEx | None' = None, by_alias: 'bool' = False, exclude_unset: 'bool' = False, exclude_defaults: 'bool' = False, exclude_none: 'bool' = False) -> 'Dict[str, Any]'",
+    "from_orm": "classmethod(obj: 'Any') -> 'Self'",
+    "json": "method(self, *, include: 'IncEx | None' = None, exclude: 'IncEx | None' = None, by_alias: 'bool' = False, exclude_unset: 'bool' = False, exclude_defaults: 'bool' = False, exclude_none: 'bool' = False, encoder: 'Callable[[Any], Any] | None' = PydanticUndefined, models_as_dict: 'bool' = PydanticUndefined, **dumps_kwargs: 'Any') -> 'str'",
+    "parse_file": "classmethod(path: 'str | Path', *, content_type: 'str | None' = None, encoding: 'str' = 'utf8', proto: 'DeprecatedParseProtocol | None' = None, allow_pickle: 'bool' = False) -> 'Self'",
+    "parse_obj": "classmethod(obj: 'Any') -> 'Self'",
+    "parse_raw": "classmethod(b: 'str | bytes', *, content_type: 'str | None' = None, encoding: 'str' = 'utf8', proto: 'DeprecatedParseProtocol | None' = None, allow_pickle: 'bool' = False) -> 'Self'",
+    "schema": "classmethod(by_alias: 'bool' = True, ref_template: 'str' = '#/$defs/{model}') -> 'Dict[str, Any]'",
+    "schema_json": "classmethod(*, by_alias: 'bool' = True, ref_template: 'str' = '#/$defs/{model}', **dumps_kwargs: 'Any') -> 'str'",
+    "update_forward_refs": "classmethod(**localns: 'Any') -> 'None'",
+    "validate": "classmethod(value: 'Any') -> 'Self'"
+   }
+  },
+  "EvidenceKind": {
+   "enum": [
+    "cardinality_shift",
+    "distribution_shift",
+    "freshness_stall",
+    "graph_anomaly",
+    "heavy_hitter_shift",
+    "join_degradation",
+    "null_rate_shift",
+    "rate_change",
+    "residual_structure",
+    "segment_divergence"
+   ]
+  },
+  "FEATURE_VALUE": {
+   "value": "'value'"
+  },
+  "FeatureBase": {
+   "class": "()",
+   "members": {
+    "EMBARGO": "attribute: timedelta",
+    "FILL": "attribute: FillPolicy",
+    "KIND": "attribute: FeatureKind",
+    "LABEL_LAG": "attribute: timedelta",
+    "SDK_METHODS": "attribute: tuple",
+    "aggregate": "method(self, columns: 'Mapping[str, str]') -> 'str'",
+    "evaluate": "method(self, spec: 'FeatureSpec', *, events: 'pa.Table', history: 'pa.Table') -> 'pa.Table'",
+    "log": "property",
+    "plugin_info": "classmethod() -> 'PluginInfo'",
+    "rule": "method(self, timestamp_column: 'str') -> 'PointInTimeRule'",
+    "runner": "property",
+    "spec": "method(self, *, feature_id: 'str', source_id: 'str', entity_key: 'str', timestamp_column: 'str', columns: 'Mapping[str, str]', spec_version: 'Version' = 1) -> 'FeatureSpec'"
+   }
+  },
+  "FeatureKind": {
+   "enum": [
+    "aggregate",
+    "entity_history",
+    "graph",
+    "pattern_indicator",
+    "raw_column",
+    "residual",
+    "time_window"
+   ]
+  },
+  "FillPolicy": {
+   "enum": [
+    "fail",
+    "null",
+    "sentinel",
+    "zero"
+   ]
+  },
+  "HypothesisTest": {
+   "class": "(method: 'str', statistic: 'float', effect: 'float', p_value: 'float | None', direction: 'Direction', note: 'str' = '', baseline: 'float | None' = None, statistic_unit: 'str' = '', effect_unit: 'str' = '') -> None",
+   "members": {
+    "baseline": "attribute: member_descriptor",
+    "direction": "attribute: member_descriptor",
+    "effect": "attribute: member_descriptor",
+    "effect_unit": "attribute: member_descriptor",
+    "method": "attribute: member_descriptor",
+    "note": "attribute: member_descriptor",
+    "p_value": "attribute: member_descriptor",
+    "statistic": "attribute: member_descriptor",
+    "statistic_unit": "attribute: member_descriptor"
+   }
+  },
+  "IncompatiblePluginError": {
+   "class": "<no signature>",
+   "members": {
+    "add_note": "method<no signature>",
+    "args": "attribute: getset_descriptor",
+    "with_traceback": "method<no signature>"
+   }
+  },
+  "ItemFlavour": {
+   "enum": [
+    "categorical",
+    "edge",
+    "numeric"
+   ]
+  },
+  "LogValue": {
+   "value": "LogValue"
+  },
+  "LogicalType": {
+   "enum": [
+    "binary",
+    "bool",
+    "date",
+    "decimal",
+    "float",
+    "int",
+    "list",
+    "map",
+    "string",
+    "struct",
+    "timestamp",
+    "unknown"
+   ]
+  },
+  "MergeExactness": {
+   "enum": [
+    "bounded",
+    "exact"
+   ]
+  },
+  "PLUGIN_SOURCE_KIND": {
+   "value": "<SourceKind.PARQUET: 'parquet'>"
+  },
+  "PanelBase": {
+   "class": "()",
+   "members": {
+    "LABELS": "attribute: tuple",
+    "SDK_METHODS": "attribute: tuple",
+    "log": "property",
+    "plugin_info": "classmethod() -> 'PluginInfo'",
+    "render": "method(self, payload: 'SafePayload') -> 'PanelView'",
+    "runner": "property",
+    "view": "method(self, payload: 'SafePayload') -> 'PanelView'"
+   }
+  },
+  "PanelSeries": {
+   "class": "(*, label: str, values: tuple[SafeScalar, ...]) -> None",
+   "members": {
+    "construct": "classmethod(_fields_set: 'set[str] | None' = None, **values: 'Any') -> 'Self'",
+    "copy": "method(self, *, include: 'AbstractSetIntStr | MappingIntStrAny | None' = None, exclude: 'AbstractSetIntStr | MappingIntStrAny | None' = None, update: 'Dict[str, Any] | None' = None, deep: 'bool' = False) -> 'Self'",
+    "dict": "method(self, *, include: 'IncEx | None' = None, exclude: 'IncEx | None' = None, by_alias: 'bool' = False, exclude_unset: 'bool' = False, exclude_defaults: 'bool' = False, exclude_none: 'bool' = False) -> 'Dict[str, Any]'",
+    "from_orm": "classmethod(obj: 'Any') -> 'Self'",
+    "json": "method(self, *, include: 'IncEx | None' = None, exclude: 'IncEx | None' = None, by_alias: 'bool' = False, exclude_unset: 'bool' = False, exclude_defaults: 'bool' = False, exclude_none: 'bool' = False, encoder: 'Callable[[Any], Any] | None' = PydanticUndefined, models_as_dict: 'bool' = PydanticUndefined, **dumps_kwargs: 'Any') -> 'str'",
+    "parse_file": "classmethod(path: 'str | Path', *, content_type: 'str | None' = None, encoding: 'str' = 'utf8', proto: 'DeprecatedParseProtocol | None' = None, allow_pickle: 'bool' = False) -> 'Self'",
+    "parse_obj": "classmethod(obj: 'Any') -> 'Self'",
+    "parse_raw": "classmethod(b: 'str | bytes', *, content_type: 'str | None' = None, encoding: 'str' = 'utf8', proto: 'DeprecatedParseProtocol | None' = None, allow_pickle: 'bool' = False) -> 'Self'",
+    "schema": "classmethod(by_alias: 'bool' = True, ref_template: 'str' = '#/$defs/{model}') -> 'Dict[str, Any]'",
+    "schema_json": "classmethod(*, by_alias: 'bool' = True, ref_template: 'str' = '#/$defs/{model}', **dumps_kwargs: 'Any') -> 'str'",
+    "update_forward_refs": "classmethod(**localns: 'Any') -> 'None'",
+    "validate": "classmethod(value: 'Any') -> 'Self'"
+   }
+  },
+  "PanelView": {
+   "class": "(*, title: str, chart: Literal['stat', 'bar', 'line', 'table'], series: tuple[godwit_sdk.panel.PanelSeries, ...] = ()) -> None",
+   "members": {
+    "construct": "classmethod(_fields_set: 'set[str] | None' = None, **values: 'Any') -> 'Self'",
+    "copy": "method(self, *, include: 'AbstractSetIntStr | MappingIntStrAny | None' = None, exclude: 'AbstractSetIntStr | MappingIntStrAny | None' = None, update: 'Dict[str, Any] | None' = None, deep: 'bool' = False) -> 'Self'",
+    "dict": "method(self, *, include: 'IncEx | None' = None, exclude: 'IncEx | None' = None, by_alias: 'bool' = False, exclude_unset: 'bool' = False, exclude_defaults: 'bool' = False, exclude_none: 'bool' = False) -> 'Dict[str, Any]'",
+    "from_orm": "classmethod(obj: 'Any') -> 'Self'",
+    "json": "method(self, *, include: 'IncEx | None' = None, exclude: 'IncEx | None' = None, by_alias: 'bool' = False, exclude_unset: 'bool' = False, exclude_defaults: 'bool' = False, exclude_none: 'bool' = False, encoder: 'Callable[[Any], Any] | None' = PydanticUndefined, models_as_dict: 'bool' = PydanticUndefined, **dumps_kwargs: 'Any') -> 'str'",
+    "parse_file": "classmethod(path: 'str | Path', *, content_type: 'str | None' = None, encoding: 'str' = 'utf8', proto: 'DeprecatedParseProtocol | None' = None, allow_pickle: 'bool' = False) -> 'Self'",
+    "parse_obj": "classmethod(obj: 'Any') -> 'Self'",
+    "parse_raw": "classmethod(b: 'str | bytes', *, content_type: 'str | None' = None, encoding: 'str' = 'utf8', proto: 'DeprecatedParseProtocol | None' = None, allow_pickle: 'bool' = False) -> 'Self'",
+    "schema": "classmethod(by_alias: 'bool' = True, ref_template: 'str' = '#/$defs/{model}') -> 'Dict[str, Any]'",
+    "schema_json": "classmethod(*, by_alias: 'bool' = True, ref_template: 'str' = '#/$defs/{model}', **dumps_kwargs: 'Any') -> 'str'",
+    "update_forward_refs": "classmethod(**localns: 'Any') -> 'None'",
+    "validate": "classmethod(value: 'Any') -> 'Self'"
+   }
+  },
+  "Partition": {
+   "class": "(key: 'str', estimated_bytes: 'int', row_count: 'int') -> None",
+   "members": {
+    "estimated_bytes": "attribute: member_descriptor",
+    "key": "attribute: member_descriptor",
+    "row_count": "attribute: member_descriptor"
+   }
+  },
+  "PluginBase": {
+   "class": "()",
+   "members": {
+    "SDK_METHODS": "attribute: tuple",
+    "log": "property",
+    "plugin_info": "classmethod() -> 'PluginInfo'",
+    "runner": "property"
+   }
+  },
+  "PluginFailedError": {
+   "class": "(plugin: 'str', *, stage: 'str', error_type: 'str', classification: 'str', original: 'Tainted[str] | None') -> 'None'",
+   "members": {
+    "add_note": "method<no signature>",
+    "args": "attribute: getset_descriptor",
+    "with_traceback": "method<no signature>"
+   }
+  },
+  "PluginInfo": {
+   "class": "(kind: 'PluginKind', namespace: 'str', name: 'str', version: 'str', requires_sdk: 'str', summary: 'str', capabilities: 'Capabilities', limits: 'ResourceLimits') -> None",
+   "members": {
+    "capabilities": "attribute: member_descriptor",
+    "kind": "attribute: member_descriptor",
+    "limits": "attribute: member_descriptor",
+    "lineage_version": "property",
+    "name": "attribute: member_descriptor",
+    "namespace": "attribute: member_descriptor",
+    "qualified_name": "property",
+    "requires_sdk": "attribute: member_descriptor",
+    "summary": "attribute: member_descriptor",
+    "trust_category": "property",
+    "version": "attribute: member_descriptor"
+   }
+  },
+  "PluginKind": {
+   "enum": [
+    "context",
+    "detector",
+    "feature",
+    "panel",
+    "sketch",
+    "source"
+   ]
+  },
+  "PluginLogger": {
+   "class": "(plugin: 'str') -> 'None'",
+   "members": {
+    "debug": "method(self, event: 'LiteralString', /, **fields: 'LogValue') -> 'None'",
+    "error": "method(self, event: 'LiteralString', /, **fields: 'LogValue') -> 'None'",
+    "info": "method(self, event: 'LiteralString', /, **fields: 'LogValue') -> 'None'",
+    "warning": "method(self, event: 'LiteralString', /, **fields: 'LogValue') -> 'None'"
+   }
+  },
+  "PluginRegistry": {
+   "class": "() -> 'None'",
+   "members": {
+    "get": "method(self, kind: 'PluginKind', qualified_name: 'str') -> 'type[PluginBase]'",
+    "infos": "method(self) -> 'tuple[PluginInfo, ...]'",
+    "of_kind": "method(self, kind: 'PluginKind') -> 'tuple[type[PluginBase], ...]'",
+    "register": "method(self, plugin: 'type[PluginBase]') -> 'PluginInfo'"
+   }
+  },
+  "PluginRejectedError": {
+   "class": "(plugin: 'str', problems: 'Sequence[str]') -> 'None'",
+   "members": {
+    "add_note": "method<no signature>",
+    "args": "attribute: getset_descriptor",
+    "with_traceback": "method<no signature>"
+   }
+  },
+  "ProbeRefusedError": {
+   "class": "(reason: 'str') -> 'None'",
+   "members": {
+    "add_note": "method<no signature>",
+    "args": "attribute: getset_descriptor",
+    "with_traceback": "method<no signature>"
+   }
+  },
+  "ResourceLimitError": {
+   "class": "<no signature>",
+   "members": {
+    "add_note": "method<no signature>",
+    "args": "attribute: getset_descriptor",
+    "with_traceback": "method<no signature>"
+   }
+  },
+  "ResourceLimits": {
+   "class": "(max_bytes_read: 'int | None' = None, max_seconds: 'float | None' = None, max_memory_bytes: 'int | None' = None) -> None",
+   "members": {
+    "max_bytes_read": "attribute: member_descriptor",
+    "max_memory_bytes": "attribute: member_descriptor",
+    "max_seconds": "attribute: member_descriptor"
+   }
+  },
+  "SafePayload": {
+   "class": "(*_args: 'object', **_kwargs: 'object') -> 'SafePayload'",
+   "members": {
+    "digest": "property",
+    "egress_record_id": "property",
+    "fields": "property",
+    "policy_id": "property",
+    "policy_version": "property",
+    "purpose": "property"
+   }
+  },
+  "SdkError": {
+   "class": "<no signature>",
+   "members": {
+    "add_note": "method<no signature>",
+    "args": "attribute: getset_descriptor",
+    "with_traceback": "method<no signature>"
+   }
+  },
+  "Sensitivity": {
+   "enum": [
+    "data_value",
+    "derived_statistic",
+    "schema_name",
+    "token"
+   ]
+  },
+  "SketchBase": {
+   "class": "()",
+   "members": {
+    "SDK_METHODS": "attribute: tuple",
+    "SENSITIVITY": "attribute: NoneType",
+    "decode": "classmethod(envelope: 'SketchEnvelope') -> 'Self'",
+    "encode": "method(self) -> 'bytes'",
+    "error_bound": "method(self) -> 'ErrorBound'",
+    "estimate": "method(self) -> 'float'",
+    "fingerprint": "property",
+    "from_items": "classmethod(items: 'Sequence[SketchItem]', params: 'Mapping[str, ParamValue]') -> 'Self'",
+    "identity": "classmethod(params: 'Mapping[str, ParamValue]') -> 'Self'",
+    "kind": "property",
+    "log": "property",
+    "merge": "method(self, other: 'Self') -> 'Self'",
+    "params": "property",
+    "plugin_info": "classmethod() -> 'PluginInfo'",
+    "population": "property",
+    "provenance": "method(self, context: 'SketchContext | None' = None) -> 'Provenance'",
+    "require_mergeable": "method(self, other: 'Self') -> 'None'",
+    "runner": "property",
+    "sensitivity": "property",
+    "serialise": "method(self, context: 'SketchContext | None' = None) -> 'SketchEnvelope'"
+   }
+  },
+  "SketchKind": {
+   "enum": [
+    "count_min",
+    "exact_count",
+    "frequent_items",
+    "hll",
+    "kll",
+    "theta"
+   ]
+  },
+  "Snapshot": {
+   "class": "(snapshot_id: 'str', sequence_number: 'int', committed_at: '_dt.datetime') -> None",
+   "members": {
+    "committed_at": "attribute: member_descriptor",
+    "sequence_number": "attribute: member_descriptor",
+    "snapshot_id": "attribute: member_descriptor"
+   }
+  },
+  "SourceBase": {
+   "class": "()",
+   "members": {
+    "SDK_METHODS": "attribute: tuple",
+    "column_stats": "method(self, table: 'TableName', snapshot: 'Snapshot') -> 'Mapping[str, ColumnStats]'",
+    "columns": "method(self, table: 'TableName', snapshot: 'Snapshot') -> 'Mapping[str, LogicalType]'",
+    "execute_probe": "method(self, spec: 'ProbeSpec', snapshot: 'SnapshotRef', *, budget: 'CostBudget') -> 'SketchBundle'",
+    "for_conformance": "classmethod(tables: 'Mapping[str, pa.Table]') -> 'Self'",
+    "govern": "method(self, *, access: 'AccessModeMap', keyring: 'ProbeKeyring | None' = None, guardrails: 'Sequence[Guardrail]' = (), usd_per_gib: 'Decimal' = Decimal('0')) -> 'Self'",
+    "log": "property",
+    "partitions": "method(self, table: 'TableName', snapshot: 'Snapshot') -> 'Sequence[Partition]'",
+    "plugin_info": "classmethod() -> 'PluginInfo'",
+    "profile_table": "method(self, source: 'SourceRef', snapshot: 'SnapshotRef', *, budget: 'CostBudget') -> 'TableProfile'",
+    "read": "method(self, table: 'TableName', partition: 'Partition', columns: 'Sequence[str]') -> 'Iterable[pa.RecordBatch | pa.Table]'",
+    "resolve_snapshot": "method(self, source: 'SourceRef', *, at: '_dt.datetime | None' = None) -> 'SnapshotRef'",
+    "run_probe": "method(self, spec: 'ProbeSpec', *, budget: 'CostBudget', snapshot: 'SnapshotRef | None' = None, cancel: 'CancelToken | None' = None) -> 'ProbeOutcome'",
+    "runner": "property",
+    "snapshot": "method(self, table: 'TableName', *, at: '_dt.datetime | None') -> 'Snapshot'",
+    "source_ref": "classmethod(*, source_id: 'str', namespace: 'str', table: 'str') -> 'SourceRef'"
+   }
+  },
+  "TableName": {
+   "class": "(namespace: 'str', name: 'str') -> None",
+   "members": {
+    "name": "attribute: member_descriptor",
+    "namespace": "attribute: member_descriptor"
+   }
+  },
+  "TrustCategory": {
+   "enum": [
+    "in_process",
+    "isolate"
+   ]
+  },
+  "__version__": {
+   "value": "'0.1.0'"
+  },
+  "check_compatible": {
+   "function": "(info: 'PluginInfo', *, sdk_version: 'str' = '0.1.0') -> 'None'"
+  },
+  "context": {
+   "function": "(*, name: 'str', namespace: 'str', version: 'str', summary: 'str' = '', requires_sdk: 'str' = '~=0.1.0', capabilities: 'Capabilities | None' = None, limits: 'ResourceLimits | None' = None) -> 'Callable[[type[C]], type[C]]'"
+  },
+  "detector": {
+   "function": "(*, name: 'str', namespace: 'str', version: 'str', summary: 'str' = '', requires_sdk: 'str' = '~=0.1.0', capabilities: 'Capabilities | None' = None, limits: 'ResourceLimits | None' = None) -> 'Callable[[type[D]], type[D]]'"
+  },
+  "discover": {
+   "function": "(registry: 'PluginRegistry', *, entries: 'Iterable[EntryPoint] | None' = None, strict: 'bool' = False) -> 'DiscoveryReport'"
+  },
+  "feature": {
+   "function": "(*, name: 'str', namespace: 'str', version: 'str', summary: 'str' = '', requires_sdk: 'str' = '~=0.1.0', capabilities: 'Capabilities | None' = None, limits: 'ResourceLimits | None' = None) -> 'Callable[[type[F]], type[F]]'"
+  },
+  "logical_type": {
+   "function": "(arrow_type: 'pa.DataType') -> 'LogicalType'"
+  },
+  "panel": {
+   "function": "(*, name: 'str', namespace: 'str', version: 'str', summary: 'str' = '', requires_sdk: 'str' = '~=0.1.0', capabilities: 'Capabilities | None' = None, limits: 'ResourceLimits | None' = None) -> 'Callable[[type[P]], type[P]]'"
+  },
+  "sketch": {
+   "function": "(*, name: 'str', namespace: 'str', version: 'str', summary: 'str' = '', requires_sdk: 'str' = '~=0.1.0', capabilities: 'Capabilities | None' = None, limits: 'ResourceLimits | None' = None) -> 'Callable[[type[S]], type[S]]'"
+  },
+  "source": {
+   "function": "(*, name: 'str', namespace: 'str', version: 'str', summary: 'str' = '', requires_sdk: 'str' = '~=0.1.0', capabilities: 'Capabilities | None' = None, limits: 'ResourceLimits | None' = None) -> 'Callable[[type[S]], type[S]]'"
+  }
+ },
+ "version": "0.1.0"
+}

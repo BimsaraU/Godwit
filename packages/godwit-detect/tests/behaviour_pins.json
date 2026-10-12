@@ -1,0 +1,42 @@
+{
+  "copod": {
+    "digest": "bhv_98095878841bd3d8f753090d94265a80",
+    "version": "1.0.0"
+  },
+  "correlation_shift": {
+    "digest": "bhv_de689a44840fb154af84e731f5960446",
+    "version": "1.0.0"
+  },
+  "ecod": {
+    "digest": "bhv_e6c70de8526439ffc0486866774d243e",
+    "version": "1.0.0"
+  },
+  "graph_anomaly": {
+    "digest": "bhv_e769545937124c079108c5c8f9216d67",
+    "version": "1.0.0"
+  },
+  "heavy_hitter_shift": {
+    "digest": "bhv_668e7da04c64180e13b4e67ff3944f35",
+    "version": "1.0.0"
+  },
+  "js_drift": {
+    "digest": "bhv_f7a96d161306f359fb4cbc4bd5ffc015",
+    "version": "1.0.0"
+  },
+  "matrix_profile": {
+    "digest": "bhv_692ac4aaf0f9ab30043f46ab2d8948d1",
+    "version": "1.0.0"
+  },
+  "psi_drift": {
+    "digest": "bhv_c16cc121249a760f3e2a8b90f1416354",
+    "version": "1.0.0"
+  },
+  "segment_divergence": {
+    "digest": "bhv_ce3a92354d6208c0e6e8568457fe171b",
+    "version": "1.0.0"
+  },
+  "wasserstein_drift": {
+    "digest": "bhv_6da165338057c6859b67b65af7f143e3",
+    "version": "1.0.0"
+  }
+}

@@ -130,6 +130,17 @@ uv run python packages/godwit-sketch/benchmarks/run_benchmarks.py
 
 ---
 
+## Cross-platform synthetic data (2026-10-13)
+
+`godwit_sketch.deterministic` used `math.log`, `math.exp`, `math.cos` and `**`. They go
+through the C library, and Windows (UCRT) and Linux (glibc) disagree in the last bit.
+KLL compaction turns that one bit into a different sketch, so detector tests built on
+this data passed on Windows and failed in Linux CI. The module now computes these with
+`portable_log`, `portable_exp` and a portable cosine, which use only IEEE
+correctly-rounded operations and give the same bits on every platform. The generated
+values moved slightly, once. Sketch code itself was not changed: identical inputs always
+gave identical bytes.
+
 ## Known limits
 
 Full list in §10 of the package doc. The ones most likely to bite:
