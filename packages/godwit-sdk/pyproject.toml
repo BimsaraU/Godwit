@@ -1,10 +1,35 @@
 [project]
 name = "godwit-sdk"
 version = "0.1.0"
-description = "Public extension surface for third-party probes and detectors (SDK)."
+description = "The public extension surface: plugin base classes, discovery, capabilities and the conformance kit."
 readme = "HANDOFF.md"
 requires-python = ">=3.12,<3.13"
-dependencies = ["godwit-contracts"]
+dependencies = [
+  "godwit-contracts",
+  "godwit-sketch",
+  "godwit-source",
+  "godwit-detect",
+  "godwit-context",
+  "godwit-probe",
+  "godwit-guard",
+  "pyarrow>=16.0",
+  "duckdb>=1.1",
+  "packaging>=24.0",
+]
+
+[project.optional-dependencies]
+# The conformance kit (godwit_sdk.testing) is a pytest plugin and property-tests sketches.
+testing = ["pytest>=8.2", "hypothesis>=6.100"]
+
+[project.scripts]
+godwit-sdk = "godwit_sdk.cli:main"
+
+# The three reference plugins, discovered the same way a third-party plugin is. The entry
+# point name is the plugin's qualified name and must match what its decorator declares.
+[project.entry-points."godwit.plugins"]
+"examples.rest-orders" = "godwit_sdk.examples.rest_source:RestOrdersSource"
+"examples.bloom" = "godwit_sdk.examples.bloom:BloomMembership"
+"examples.benford" = "godwit_sdk.examples.benford:BenfordDetector"
 
 [build-system]
 requires = ["hatchling"]

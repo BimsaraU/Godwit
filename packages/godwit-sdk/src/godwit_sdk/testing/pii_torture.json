@@ -1,0 +1,307 @@
+{
+ "_comment": "A copy of tests/golden/pii_torture (owner A0), shipped so the conformance kit works outside this repository. tests/test_golden.py fails if it drifts from the original.",
+ "columns": [
+  {
+   "leak_paths": [
+    "column_name",
+    "manifest_bounds",
+    "most_common_values"
+   ],
+   "name": "customer_ssn",
+   "pii_class": "direct_identifier"
+  },
+  {
+   "leak_paths": [
+    "manifest_bounds",
+    "most_common_values"
+   ],
+   "name": "full_name",
+   "pii_class": "direct_identifier"
+  },
+  {
+   "leak_paths": [
+    "manifest_bounds"
+   ],
+   "name": "email",
+   "pii_class": "direct_identifier"
+  },
+  {
+   "leak_paths": [
+    "column_name",
+    "category_histogram",
+    "most_common_values"
+   ],
+   "name": "patient_hiv_status",
+   "pii_class": "health"
+  },
+  {
+   "leak_paths": [
+    "column_name",
+    "quantile",
+    "manifest_bounds"
+   ],
+   "name": "salary_2024",
+   "pii_class": "financial"
+  },
+  {
+   "leak_paths": [
+    "count_min_heavy_hitter"
+   ],
+   "name": "device_id",
+   "pii_class": "quasi_identifier"
+  },
+  {
+   "leak_paths": [
+    "count_min_heavy_hitter",
+    "derived_feature_name"
+   ],
+   "name": "merchant_name",
+   "pii_class": "quasi_identifier"
+  },
+  {
+   "leak_paths": [
+    "small_cell"
+   ],
+   "name": "cohort",
+   "pii_class": "quasi_identifier"
+  },
+  {
+   "leak_paths": [
+    "free_text"
+   ],
+   "name": "notes",
+   "pii_class": "sensitive_attribute"
+  }
+ ],
+ "derived_feature_name_trap": "is_merchant_ACME_CORP",
+ "driver_exception_trap": "ERROR: duplicate key value violates unique constraint \"customers_pkey\" DETAIL: Key (customer_ssn)=(100-40-1000) already exists.",
+ "must_never_appear": [
+  "100-40-1000",
+  "101-41-1007",
+  "102-42-1014",
+  "103-43-1021",
+  "104-44-1028",
+  "105-45-1035",
+  "106-46-1042",
+  "107-47-1049",
+  "108-48-1056",
+  "109-49-1063",
+  "110-50-1070",
+  "111-51-1077",
+  "41000",
+  "44100",
+  "47200",
+  "50300",
+  "53400",
+  "56500",
+  "59600",
+  "62700",
+  "65800",
+  "68900",
+  "72000",
+  "75100",
+  "ACME_CORP",
+  "Aoife Brennan",
+  "Daniel Okonkwo",
+  "Erik Lindqvist",
+  "Hiroshi Nakamura",
+  "Kwame Mensah",
+  "Lena Vogt",
+  "Marielle Dubois",
+  "Mateo Alvarez",
+  "Priya Raghunathan",
+  "Sofia Petrova",
+  "Tomas Oliveira",
+  "Zainab Farouk",
+  "aoife.brennan@northfield-bank.test",
+  "called Aoife Brennan on the number ending 2000",
+  "called Daniel Okonkwo on the number ending 2007",
+  "called Erik Lindqvist on the number ending 2011",
+  "called Hiroshi Nakamura on the number ending 2005",
+  "called Kwame Mensah on the number ending 2001",
+  "called Lena Vogt on the number ending 2008",
+  "called Marielle Dubois on the number ending 2004",
+  "called Mateo Alvarez on the number ending 2009",
+  "called Priya Raghunathan on the number ending 2002",
+  "called Sofia Petrova on the number ending 2006",
+  "called Tomas Oliveira on the number ending 2003",
+  "called Zainab Farouk on the number ending 2010",
+  "daniel.okonkwo@northfield-bank.test",
+  "dev-0000-a4f7723b",
+  "dev-0001-2ca19661",
+  "dev-0002-4c8f687a",
+  "dev-0003-59ba90af",
+  "dev-0004-b042b7e1",
+  "dev-0005-116ae747",
+  "dev-0006-f6bd955a",
+  "dev-0007-75ba247e",
+  "dev-0008-81de525e",
+  "dev-0009-3e02103e",
+  "dev-0010-6031a7f4",
+  "dev-0011-0837e2ae",
+  "erik.lindqvist@northfield-bank.test",
+  "general",
+  "hiroshi.nakamura@northfield-bank.test",
+  "is_merchant_ACME_CORP",
+  "kwame.mensah@northfield-bank.test",
+  "lena.vogt@northfield-bank.test",
+  "marielle.dubois@northfield-bank.test",
+  "mateo.alvarez@northfield-bank.test",
+  "negative",
+  "pilot_group_a",
+  "positive",
+  "priya.raghunathan@northfield-bank.test",
+  "sofia.petrova@northfield-bank.test",
+  "tomas.oliveira@northfield-bank.test",
+  "unknown",
+  "vendor_11",
+  "zainab.farouk@northfield-bank.test"
+ ],
+ "rows": [
+  {
+   "cohort": "pilot_group_a",
+   "customer_ssn": "100-40-1000",
+   "device_id": "dev-0000-a4f7723b",
+   "email": "aoife.brennan@northfield-bank.test",
+   "full_name": "Aoife Brennan",
+   "merchant_name": "ACME_CORP",
+   "notes": "called Aoife Brennan on the number ending 2000",
+   "patient_hiv_status": "unknown",
+   "salary_2024": 41000
+  },
+  {
+   "cohort": "pilot_group_a",
+   "customer_ssn": "101-41-1007",
+   "device_id": "dev-0001-2ca19661",
+   "email": "kwame.mensah@northfield-bank.test",
+   "full_name": "Kwame Mensah",
+   "merchant_name": "vendor_01",
+   "notes": "called Kwame Mensah on the number ending 2001",
+   "patient_hiv_status": "positive",
+   "salary_2024": 44100
+  },
+  {
+   "cohort": "pilot_group_a",
+   "customer_ssn": "102-42-1014",
+   "device_id": "dev-0002-4c8f687a",
+   "email": "priya.raghunathan@northfield-bank.test",
+   "full_name": "Priya Raghunathan",
+   "merchant_name": "vendor_02",
+   "notes": "called Priya Raghunathan on the number ending 2002",
+   "patient_hiv_status": "negative",
+   "salary_2024": 47200
+  },
+  {
+   "cohort": "general",
+   "customer_ssn": "103-43-1021",
+   "device_id": "dev-0003-59ba90af",
+   "email": "tomas.oliveira@northfield-bank.test",
+   "full_name": "Tomas Oliveira",
+   "merchant_name": "vendor_03",
+   "notes": "called Tomas Oliveira on the number ending 2003",
+   "patient_hiv_status": "unknown",
+   "salary_2024": 50300
+  },
+  {
+   "cohort": "general",
+   "customer_ssn": "104-44-1028",
+   "device_id": "dev-0004-b042b7e1",
+   "email": "marielle.dubois@northfield-bank.test",
+   "full_name": "Marielle Dubois",
+   "merchant_name": "vendor_04",
+   "notes": "called Marielle Dubois on the number ending 2004",
+   "patient_hiv_status": "positive",
+   "salary_2024": 53400
+  },
+  {
+   "cohort": "general",
+   "customer_ssn": "105-45-1035",
+   "device_id": "dev-0005-116ae747",
+   "email": "hiroshi.nakamura@northfield-bank.test",
+   "full_name": "Hiroshi Nakamura",
+   "merchant_name": "ACME_CORP",
+   "notes": "called Hiroshi Nakamura on the number ending 2005",
+   "patient_hiv_status": "positive",
+   "salary_2024": 56500
+  },
+  {
+   "cohort": "general",
+   "customer_ssn": "106-46-1042",
+   "device_id": "dev-0006-f6bd955a",
+   "email": "sofia.petrova@northfield-bank.test",
+   "full_name": "Sofia Petrova",
+   "merchant_name": "vendor_06",
+   "notes": "called Sofia Petrova on the number ending 2006",
+   "patient_hiv_status": "positive",
+   "salary_2024": 59600
+  },
+  {
+   "cohort": "general",
+   "customer_ssn": "107-47-1049",
+   "device_id": "dev-0007-75ba247e",
+   "email": "daniel.okonkwo@northfield-bank.test",
+   "full_name": "Daniel Okonkwo",
+   "merchant_name": "vendor_07",
+   "notes": "called Daniel Okonkwo on the number ending 2007",
+   "patient_hiv_status": "positive",
+   "salary_2024": 62700
+  },
+  {
+   "cohort": "general",
+   "customer_ssn": "108-48-1056",
+   "device_id": "dev-0008-81de525e",
+   "email": "lena.vogt@northfield-bank.test",
+   "full_name": "Lena Vogt",
+   "merchant_name": "vendor_08",
+   "notes": "called Lena Vogt on the number ending 2008",
+   "patient_hiv_status": "unknown",
+   "salary_2024": 65800
+  },
+  {
+   "cohort": "general",
+   "customer_ssn": "109-49-1063",
+   "device_id": "dev-0009-3e02103e",
+   "email": "mateo.alvarez@northfield-bank.test",
+   "full_name": "Mateo Alvarez",
+   "merchant_name": "vendor_09",
+   "notes": "called Mateo Alvarez on the number ending 2009",
+   "patient_hiv_status": "negative",
+   "salary_2024": 68900
+  },
+  {
+   "cohort": "general",
+   "customer_ssn": "110-50-1070",
+   "device_id": "dev-0010-6031a7f4",
+   "email": "zainab.farouk@northfield-bank.test",
+   "full_name": "Zainab Farouk",
+   "merchant_name": "ACME_CORP",
+   "notes": "called Zainab Farouk on the number ending 2010",
+   "patient_hiv_status": "positive",
+   "salary_2024": 72000
+  },
+  {
+   "cohort": "general",
+   "customer_ssn": "111-51-1077",
+   "device_id": "dev-0011-0837e2ae",
+   "email": "erik.lindqvist@northfield-bank.test",
+   "full_name": "Erik Lindqvist",
+   "merchant_name": "vendor_11",
+   "notes": "called Erik Lindqvist on the number ending 2011",
+   "patient_hiv_status": "negative",
+   "salary_2024": 75100
+  }
+ ],
+ "rows_digest": "381110f75e801b9288c2885344f49740",
+ "schema": {
+  "cohort": "string",
+  "customer_ssn": "string",
+  "device_id": "string",
+  "email": "string",
+  "full_name": "string",
+  "merchant_name": "string",
+  "notes": "string",
+  "patient_hiv_status": "string",
+  "salary_2024": "int64"
+ },
+ "table": "customers"
+}

@@ -1,10 +1,10 @@
 [project]
 name = "godwit-context"
-version = "0.1.0"
+version = "1.0.0"
 description = "Explained-away layer: deploys, campaigns, holidays, DQ failures (L3)."
 readme = "HANDOFF.md"
 requires-python = ">=3.12,<3.13"
-dependencies = ["godwit-contracts"]
+dependencies = ["godwit-contracts", "godwit-store", "tzdata>=2024.1"]
 
 [build-system]
 requires = ["hatchling"]
