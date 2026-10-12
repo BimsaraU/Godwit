@@ -27,12 +27,13 @@ mainly utility.
 # proposed, in godwit_contracts.discovery
 class HypothesisTest(GodwitModel):
     """One hypothesis a detector examined, whether or not it became a candidate."""
+
     source_id: SourceId
     segment: Segment
     columns: tuple[Tainted[str], ...] = ()
     kind: EvidenceKind
     observed_at: Instant
-    effect_size: Tainted[float]          # DERIVED_STATISTIC
+    effect_size: Tainted[float]  # DERIVED_STATISTIC
     p_value: Tainted[float] | None = None
 ```
 

@@ -12,6 +12,7 @@ import ast
 import datetime as _dt
 import inspect
 import json
+import math
 import sys
 import textwrap
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
@@ -66,7 +67,7 @@ from godwit_probe import CancelFlag, ProbeKeyring, ProbeStatus
 from godwit_probe.testing import access_map
 from godwit_sketch import SKETCH_REGISTRY, BaseSketch, ItemFlavour, SketchContext, decode_envelope
 from godwit_sketch.base import SketchItem
-from godwit_sketch.deterministic import uniforms, zipf_indices
+from godwit_sketch.deterministic import portable_exp, uniforms, zipf_indices
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
@@ -485,7 +486,7 @@ def _scenario_items(
         u = uniforms(count, salt=f"kit-{shape}-{salt}")
         if shape == "shifted":
             return [400.0 + 500.0 * x for x in u]
-        return [10.0 ** (1.0 + 4.0 * x) for x in u]
+        return [portable_exp(_LN10 * (1.0 + 4.0 * x)) for x in u]
     pool = list(torture().strings())
     exponent = 1.1 if shape != "shifted" else 2.0
     indices = zipf_indices(count, distinct=len(pool), salt=f"kit-{shape}-{salt}", exponent=exponent)
@@ -501,6 +502,11 @@ def _build(codec: str, items: Sequence[SketchItem]) -> BaseSketch:
 
 
 _WINDOWS: Final[tuple[str, ...]] = ("w0", "w1", "w2")
+_LN10: Final[float] = 2.302585092994046
+"""Scenario data is built with godwit_sketch's portable exp, never ``**``: the C library's
+``pow`` differs in the last bit between Windows and Linux, and a sketch built from
+different bits is a different sketch."""
+_SIGNIFICANT: Final[int] = 10
 
 
 def _context(spec_key: ProbeKey, index: int) -> SketchContext:
@@ -685,9 +691,27 @@ def check_detector_leaks(cls: type[PluginBase]) -> None:
     _assert_no_leak(capture, "a detector's findings or logs")
 
 
+def _round(value: object) -> object:
+    if isinstance(value, float):
+        if not math.isfinite(value) or value == 0.0:
+            return repr(value)
+        return f"{value:.{_SIGNIFICANT}g}"
+    if isinstance(value, dict):
+        return {key: _round(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_round(item) for item in value]
+    return value
+
+
 def behaviour_digest(cls: type[DetectorBase]) -> str:
-    """A hash of the detector's output over the kit's scenarios, for version pinning."""
-    return content_hash(canonical_json(_results(cls)), prefix="beh")
+    """A hash of the detector's output over the kit's scenarios, for version pinning.
+
+    Floats are rounded to ten significant figures first: a detector's statistics go
+    through the C library's ``log`` and ``exp``, whose last bit differs between
+    platforms, and a pin must not fail on a laptop because CI runs Linux.
+    """
+    rounded = [_round(json.loads(rendered)) for rendered in _results(cls)]
+    return content_hash(canonical_json(rounded), prefix="beh")
 
 
 def check_version_pin(cls: type[PluginBase], pins: Path) -> None:

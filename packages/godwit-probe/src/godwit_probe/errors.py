@@ -20,7 +20,7 @@ package needs the original, and a value that is not kept cannot be leaked.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Generator, Iterable
 from enum import StrEnum
 from typing import Final, cast
 
@@ -107,24 +107,33 @@ def guarded[T](stage: Stage, code: ErrorCode, call: Callable[[], T]) -> T:
 _END: Final[object] = object()
 
 
-def guarded_iter[T](stage: Stage, code: ErrorCode, items: Iterable[T]) -> Iterator[T]:
+def guarded_iter[T](stage: Stage, code: ErrorCode, items: Iterable[T]) -> Generator[T]:
     """Iterate ``items`` under the same rule as :func:`guarded`, one ``next`` at a time.
 
     Generators raise from ``next``, which is where a Parquet reader or a query cursor
     fails half-way through a file.
     """
     iterator = guarded(stage, code, lambda: iter(items))
-    while True:
-        failure: ProbeError | None = None
-        item: object = _END
-        try:
-            item = next(iterator, _END)
-        except ProbeError:
-            raise
-        except Exception:
-            failure = ProbeError(code, stage=stage)
-        if failure is not None:
-            raise failure
-        if item is _END:
-            return
-        yield cast("T", item)
+    try:
+        while True:
+            failure: ProbeError | None = None
+            item: object = _END
+            try:
+                item = next(iterator, _END)
+            except ProbeError:
+                raise
+            except Exception:
+                failure = ProbeError(code, stage=stage)
+            if failure is not None:
+                raise failure
+            if item is _END:
+                return
+            yield cast("T", item)
+    finally:
+        # Close the wrapped generator now, not whenever the garbage collector gets to
+        # it: a query cursor's cleanup needs its connection, and the executor closes
+        # the connection as soon as a probe stops. Left to the collector, the cleanup
+        # ran after the close on Linux and raised into nowhere.
+        close = getattr(iterator, "close", None)
+        if close is not None:
+            close()

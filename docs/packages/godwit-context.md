@@ -27,22 +27,29 @@ goes on to L5.
 
 ```python
 from godwit_context import (
-    ContextRouter, StoreAuditSink, PriorBook, HolidaySource, BusinessCalendarSource,
-    collect_events, data_quality_from_candidates, PeerObservation,
+    ContextRouter,
+    StoreAuditSink,
+    PriorBook,
+    HolidaySource,
+    BusinessCalendarSource,
+    collect_events,
+    data_quality_from_candidates,
+    PeerObservation,
 )
 
-sink = StoreAuditSink(session)                       # A3's hash-chained audit ledger
+sink = StoreAuditSink(session)  # A3's hash-chained audit ledger
 router = ContextRouter(audit=sink, priors=PriorBook.load(sink))
-events = collect_events([holidays, business, deploys, campaigns, annotations],
-                        start=run_start - lookback, end=run_end)
-events += data_quality_from_candidates(l1_candidates)   # A1 schema migrations
+events = collect_events(
+    [holidays, business, deploys, campaigns, annotations], start=run_start - lookback, end=run_end
+)
+events += data_quality_from_candidates(l1_candidates)  # A1 schema migrations
 decisions = router.route(candidates, events=events, peers=peer_observations, at=now)
 session.commit()
 
 for d in decisions:
-    d.route          # EXPLAINED or PROCEED
-    d.explanation    # the attached Match when EXPLAINED, else None
-    d.matches        # EVERY aligned explanation, strongest first
+    d.route  # EXPLAINED or PROCEED
+    d.explanation  # the attached Match when EXPLAINED, else None
+    d.matches  # EVERY aligned explanation, strongest first
 ```
 
 ---

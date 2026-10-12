@@ -65,6 +65,16 @@ Full reference: [`docs/packages/godwit-probe.md`](../../docs/packages/godwit-pro
 `CR-A6-sketch-bundle-cannot-say-why`, `CR-A6-opaque-entropy-floors-disagree`,
 `CR-A6-access-modes-need-a-contract-home`, `CR-A6-graph-degree-hides-its-key-mode`.
 
+## Cleanup order on cancel (2026-10-13)
+
+When a probe stopped early (cancel, or a mid-read budget overrun), the query cursor's
+generator was left for the garbage collector. On Linux it ran after
+`QueryEngine.close()`, its `finally` tried to unregister a view on a closed DuckDB
+connection, and pytest reported an unraisable exception. `errors.guarded_iter` now
+closes the generator it wraps, and `ProbeExecutor._file_results` closes the query
+results explicitly, so the cursor is cleaned up before the connection closes. The raw
+source iterator is deliberately not closed there: DuckDB may still be pulling from it.
+
 ## Known limits
 
 Full list in §12 of the doc. The ones most likely to bite:

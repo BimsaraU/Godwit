@@ -14,6 +14,7 @@ from godwit_contracts.source import SourceRef
 from godwit_detect import ProbeContext, SeriesPoint, SketchSeries
 from godwit_sdk import LogicalType, Partition, Snapshot, SourceBase, TableName, logical_type
 from godwit_sketch import KllQuantile, SketchContext
+from godwit_sketch.deterministic import portable_exp
 
 EPOCH: Final[_dt.datetime] = _dt.datetime(2024, 1, 1, tzinfo=_dt.UTC)
 
@@ -99,3 +100,8 @@ def kll_series(windows: list[list[float]]) -> SketchSeries:
         )
         points.append(SeriesPoint(at=when, snapshot_id=SnapshotId(f"s{index}"), envelope=envelope))
     return SketchSeries(context=ProbeContext.from_spec(probe, "kll:0"), points=tuple(points))
+
+
+def pow10(exponent: float) -> float:
+    """``10 ** exponent`` with the same bits on every platform (see godwit_sketch.deterministic)."""
+    return portable_exp(2.302585092994046 * exponent)

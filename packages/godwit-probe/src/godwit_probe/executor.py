@@ -560,11 +560,12 @@ class ProbeExecutor:
             ),
         )
         checked = False
-        for result in results:
-            if not checked:
-                self._check_output(run, plan, result.schema)
-                checked = True
-            yield result
+        with closing(results):
+            for result in results:
+                if not checked:
+                    self._check_output(run, plan, result.schema)
+                    checked = True
+                yield result
 
     def _check_output(self, run: _Run, plan: ProbePlan, schema: pa.Schema) -> None:
         names = tuple(schema.names)

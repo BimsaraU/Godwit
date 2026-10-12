@@ -45,21 +45,27 @@ ships, and leave `SketchBundle` unchanged:
 
 ```python
 class ProbeStatus(StrEnum):
-    COMPLETED = "completed"; NO_CHANGE = "no_change"; REFUSED = "refused"; CANCELLED = "cancelled"
+    COMPLETED = "completed"
+    NO_CHANGE = "no_change"
+    REFUSED = "refused"
+    CANCELLED = "cancelled"
+
 
 class ProbeOutcome(GodwitModel):
     status: ProbeStatus
     probe_key: ProbeKey
     source_id: SourceId
-    since_snapshot_id: SnapshotId | None       # start of the measured range, exclusive
-    snapshot_id: SnapshotId                    # the resolved end, inclusive
-    bundle: SketchBundle | None                # present iff COMPLETED
-    refusal_reason: str | None                 # a closed vocabulary; never a value
-    refusal_column_index: int | None           # position, never a name
+    since_snapshot_id: SnapshotId | None  # start of the measured range, exclusive
+    snapshot_id: SnapshotId  # the resolved end, inclusive
+    bundle: SketchBundle | None  # present iff COMPLETED
+    refusal_reason: str | None  # a closed vocabulary; never a value
+    refusal_column_index: int | None  # position, never a name
     estimated_cost: CostSpend
     cost_spent: CostSpend
     full_rescan: bool
-    plain_key_guardrails: tuple[tuple[str, str, Version], ...]  # (sketch name, guardrail id, version)
+    plain_key_guardrails: tuple[
+        tuple[str, str, Version], ...
+    ]  # (sketch name, guardrail id, version)
 ```
 
 A lighter alternative is two optional fields on `SketchBundle` (`since_snapshot_id`,

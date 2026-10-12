@@ -35,7 +35,7 @@ One number, owned in one place. Either:
 
 ```python
 # godwit_guard.access
-DEFAULT_MIN_ENTROPY_BITS: Final[float] = 32.0   # was 24.0; matches godwit-sketch
+DEFAULT_MIN_ENTROPY_BITS: Final[float] = 32.0  # was 24.0; matches godwit-sketch
 ```
 
 or have `godwit-sketch` import the guard's constant (it would then depend on

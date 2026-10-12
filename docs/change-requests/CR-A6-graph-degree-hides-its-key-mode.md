@@ -16,7 +16,7 @@ same `params` -- and the same `producer_fingerprint` -- as one storing plain ent
 
 ```python
 sketch = GraphDegree.identity({}).with_hasher(KeyHasher.opaque(key=k, input_entropy_bits=64))
-sketch.params.get("key_mode")   # None; the inner Count-Min pair *is* hashed
+sketch.params.get("key_mode")  # None; the inner Count-Min pair *is* hashed
 ```
 
 ## Why it matters
@@ -37,7 +37,7 @@ In `GraphDegree.with_hasher`, merge the hasher's parameters in, exactly as `Coun
 does:
 
 ```python
-params={**self._params, **hasher.params()},
+params = ({**self._params, **hasher.params()},)
 ```
 
 This changes the fingerprint of hashed GraphDegree envelopes, which is the point. No stored

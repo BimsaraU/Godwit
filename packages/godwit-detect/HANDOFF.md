@@ -96,6 +96,18 @@ uv run python packages/godwit-detect/tests/benchmark_detectors.py --null 1000 --
 | `test_adapter.py` | the contract `Detector` protocol |
 | `test_contract_gaps.py` | the two CRs, as strict xfails |
 
+## Cross-platform test data (2026-10-13)
+
+Two tests failed in Linux CI and passed on Windows. The cause was the test data, not the
+detectors. `godwit_sketch.deterministic` and numpy's `lognormal` used the C library's
+`exp`/`log`, which differ in the last bit between platforms, and KLL turned that into
+different sketches. The data generator is now portable (see godwit-sketch's HANDOFF),
+`test_properties._weekly` uses it instead of numpy, and the `wasserstein_drift` pin was
+re-recorded for the new scenario data. Its version did not change, because its code
+did not change. The weekly seasonal test used to assert zero findings across 14 raw
+tests at alpha = 0.05, where chance alone gives 0.7 on average. It now allows three
+(the 99.6% binomial bound).
+
 ## Known limits
 
 Full list in §9 of the package doc. The ones most likely to bite:

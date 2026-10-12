@@ -30,6 +30,7 @@ class Candidate(GodwitModel):
     ...
     created_at: Instant
 
+
 # proposed
 class Candidate(GodwitModel):
     ...

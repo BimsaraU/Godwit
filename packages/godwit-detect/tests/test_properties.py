@@ -21,6 +21,7 @@ from godwit_detect import (
     WassersteinDrift,
 )
 from godwit_sketch import CategoryHistogram, KllQuantile
+from godwit_sketch.deterministic import lognormals
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
@@ -123,6 +124,9 @@ def test_no_clock_randomness_or_io_in_source(path: Path) -> None:
 # -- seasonality -----------------------------------------------------------------------
 
 
+_QUIET_LIMIT = 3
+
+
 def _weekly(weeks: int = 6) -> tuple[list[KllQuantile], list[CategoryHistogram]]:
     """Daily windows with a strong weekly cycle: weekends spend more, on other channels."""
     amounts: list[KllQuantile] = []
@@ -131,9 +135,11 @@ def _weekly(weeks: int = 6) -> tuple[list[KllQuantile], list[CategoryHistogram]]
         weekend = day % 7 in (5, 6)
         generator = rng(1000 + day)
         mu = 3.9 if weekend else 3.0
-        amounts.append(
-            KllQuantile.from_items(list(generator.lognormal(mu, 0.7, 2000)), {"k": 200, "seed": 5})
-        )
+        # Portable lognormals, not numpy's: numpy's goes through the C library's exp, whose
+        # last bit differs between Windows and Linux, and KLL compaction turns a last-bit
+        # difference into a different sketch.
+        values = lognormals(2000, salt=f"weekly-{day}", mu=mu, sigma=0.7)
+        amounts.append(KllQuantile.from_items(values, {"k": 200, "seed": 5}))
         shares = [10, 30, 60] if weekend else [60, 30, 10]
         channels.append(CategoryHistogram.from_items(categories(generator, shares, 2000), {}))
     return amounts, channels
@@ -159,7 +165,12 @@ def test_a_weekly_series_is_quiet_under_the_seasonal_baseline(
             continue
         fired_seasonal += len(detector.run(window, policy=seasonal).findings)
         fired_trailing += len(detector.run(window, policy=Trailing(points=3)).findings)
-    assert fired_seasonal == 0
+    # Each window is one raw test at alpha, so a quiet detector still fires by chance:
+    # 14 windows at alpha = 0.05 expect 0.7 false findings. Three or fewer covers 99.6%
+    # of quiet runs (binomial). The trailing baseline, which compares weekends with
+    # weekdays, must fire on the cycle.
+    windows = len(data) - 28
+    assert fired_seasonal <= _QUIET_LIMIT, (fired_seasonal, windows)
     assert fired_trailing > 0, "the trailing baseline should fire on the weekly cycle"
 
 

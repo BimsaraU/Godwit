@@ -21,17 +21,17 @@ probe (that is A10) and detects nothing (that is A7).
 from godwit_probe import ProbeExecutor, MemoryProbeState, IcebergProbeSource, ProbeKeyring
 
 executor = ProbeExecutor(
-    IcebergProbeSource(catalog),        # metadata reads + metered data reads
-    access=control.mode_map(guardrails=rails, at=now),   # godwit_guard.AccessControl
-    state=MemoryProbeState(),           # "since the last probed snapshot"
+    IcebergProbeSource(catalog),  # metadata reads + metered data reads
+    access=control.mode_map(guardrails=rails, at=now),  # godwit_guard.AccessControl
+    state=MemoryProbeState(),  # "since the last probed snapshot"
     keyring=ProbeKeyring(column_key=k1, sketch_key=k2),  # OPAQUE columns; from your KMS
     guardrails=rails,
 )
 outcome = executor.execute(spec, budget=budget)
-outcome.status        # COMPLETED | NO_CHANGE | REFUSED | CANCELLED
-outcome.bundle        # a SketchBundle when COMPLETED
-outcome.refusal       # why not, by reason and column *position*, with the estimate
-outcome.cost_spent    # what it actually read
+outcome.status  # COMPLETED | NO_CHANGE | REFUSED | CANCELLED
+outcome.bundle  # a SketchBundle when COMPLETED
+outcome.refusal  # why not, by reason and column *position*, with the estimate
+outcome.cost_spent  # what it actually read
 ```
 
 | Module | What it does |
@@ -235,31 +235,52 @@ five-digit salary often enough to matter -- the golden probe key does.
 
 ```python
 from godwit_probe.testing import (
-    Distribution, ProbeSimulator, SyntheticColumn, SyntheticCommit, SyntheticTable,
+    Distribution,
+    ProbeSimulator,
+    SyntheticColumn,
+    SyntheticCommit,
+    SyntheticTable,
 )
 from godwit_guard import AccessMode
 
 table = SyntheticTable(
-    namespace="shop", name="orders", seed=1,
+    namespace="shop",
+    name="orders",
+    seed=1,
     columns=(
-        SyntheticColumn("country", Distribution.CATEGORICAL,
-                        categories=("US", "DE", "PT"), weights=(0.6, 0.37, 0.03)),
+        SyntheticColumn(
+            "country",
+            Distribution.CATEGORICAL,
+            categories=("US", "DE", "PT"),
+            weights=(0.6, 0.37, 0.03),
+        ),
         SyntheticColumn("amount", Distribution.LOGNORMAL, mean=3.2, sigma=0.7, null_fraction=0.05),
         SyntheticColumn("email", Distribution.IDENTIFIER, prefix="user-"),
     ),
     commits=(
         SyntheticCommit(rows=30_000),
-        SyntheticCommit(rows=30_000, overrides={"country": SyntheticColumn(   # drift
-            "country", Distribution.CATEGORICAL, categories=("US", "DE", "PT"),
-            weights=(0.6, 0.22, 0.18))}),
+        SyntheticCommit(
+            rows=30_000,
+            overrides={
+                "country": SyntheticColumn(  # drift
+                    "country",
+                    Distribution.CATEGORICAL,
+                    categories=("US", "DE", "PT"),
+                    weights=(0.6, 0.22, 0.18),
+                )
+            },
+        ),
     ),
 )
-sim = ProbeSimulator(table, modes={"country": AccessMode.OPEN, "amount": AccessMode.OPEN,
-                                   "email": AccessMode.OPAQUE}, visible_commits=1)
+sim = ProbeSimulator(
+    table,
+    modes={"country": AccessMode.OPEN, "amount": AccessMode.OPEN, "email": AccessMode.OPAQUE},
+    visible_commits=1,
+)
 spec = sim.spec(ProbeKind.CATEGORY_HISTOGRAM, ["country"])
-first = sim.run(spec)          # commit 0
-sim.source.publish()           # a writer commits
-second = sim.run(spec)         # commit 1 only: PT at ~18%
+first = sim.run(spec)  # commit 0
+sim.source.publish()  # a writer commits
+second = sim.run(spec)  # commit 1 only: PT at ~18%
 ```
 
 * It is the real executor, planner, engine and sketches over a synthetic source -- not a

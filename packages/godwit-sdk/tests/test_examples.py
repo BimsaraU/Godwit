@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pyarrow as pa
 import pytest
-from _sdk_support import GENEROUS, kll_series, spec
+from _sdk_support import GENEROUS, kll_series, pow10, spec
 from godwit_contracts import Acquisition, ProbeKind, SnapshotId, data_value, schema_name
 from godwit_detect import FixedReference
 from godwit_sdk import CapabilityViolationError, PluginBase
@@ -69,7 +69,7 @@ def _kll(values: list[float]) -> KllQuantile:
 
 
 def test_leading_digits_of_log_uniform_amounts_follow_benford() -> None:
-    values = [10.0 ** (1 + 5 * u) for u in uniforms(20_000, salt="benford-ok")]
+    values = [pow10(1 + 5 * u) for u in uniforms(20_000, salt="benford-ok")]
     digits, covered = leading_digits(_kll(values))
     assert covered == pytest.approx(1.0)
     assert max(abs(o - e) for o, e in zip(digits, BENFORD, strict=True)) < 0.03
@@ -79,7 +79,7 @@ _series = kll_series
 
 
 def test_benford_flags_fabricated_amounts_in_a_column_that_used_to_conform() -> None:
-    honest = [10.0 ** (1 + 4 * u) for u in uniforms(8000, salt="honest")]
+    honest = [pow10(1 + 4 * u) for u in uniforms(8000, salt="honest")]
     fabricated = [400.0 + 500.0 * u for u in uniforms(8000, salt="fraud")]
     result = BenfordDetector().run(
         _series([honest, honest[:4000] + fabricated[:4000]]),
@@ -92,8 +92,8 @@ def test_benford_flags_fabricated_amounts_in_a_column_that_used_to_conform() -> 
 
 
 def test_benford_stays_quiet_on_a_conforming_column() -> None:
-    first = [10.0 ** (1 + 4 * u) for u in uniforms(8000, salt="a")]
-    second = [10.0 ** (1 + 4 * u) for u in uniforms(8000, salt="b")]
+    first = [pow10(1 + 4 * u) for u in uniforms(8000, salt="a")]
+    second = [pow10(1 + 4 * u) for u in uniforms(8000, salt="b")]
     result = BenfordDetector().run(
         _series([first, second]), policy=FixedReference(snapshot_id=SnapshotId("s0"))
     )
@@ -131,7 +131,7 @@ def test_benford_never_tests_a_column_that_is_not_money() -> None:
 
     series = _series(
         [
-            [10.0 ** (1 + 4 * u) for u in uniforms(8000, salt="c")],
+            [pow10(1 + 4 * u) for u in uniforms(8000, salt="c")],
             [400.0 + 500.0 * u for u in uniforms(8000, salt="d")],
         ]
     )
